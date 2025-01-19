@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Success Stories{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Success Stories</h1>
+        {% if user.is_authenticated %}
+            <a href="{% url 'success:story_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Share Your Story
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for story in stories %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            {% if story.image %}
+                <img src="{{ story.image.url }}" alt="{{ story.title }}" class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ story.title }}</h2>
+                <div class="text-sm text-gray-600 mb-4">
+                    <p>{{ story.author.get_full_name }}</p>
+                    <p>{{ story.current_position }} at {{ story.company }}</p>
+                    <p>Class of {{ story.graduation_year }}</p>
+                </div>
+                <p class="text-gray-600 mb-4">{{ story.content|truncatewords:30 }}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">{{ story.created_at|date:"F j, Y" }}</span>
+                    <a href="{% url 'success:story_detail' story.id %}" 
+                       class="text-blue-600 hover:text-blue-800">Read More →</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-8 bg-white rounded-lg shadow">
+            <p class="text-gray-500">No success stories available yet.</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'success:story_create' %}" 
+                   class="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Share First Story
+                </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

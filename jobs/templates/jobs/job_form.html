@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ action }} Job Posting{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ action }} Job Posting</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-2">
+                    {{ form.title|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.company|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.location|as_crispy_field }}
+                </div>
+                
+                <div class="col-span-2">
+                    {{ form.description|as_crispy_field }}
+                </div>
+                
+                <div class="col-span-2">
+                    {{ form.requirements|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.job_type|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.experience_level|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.salary_range|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.deadline|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.company_logo|as_crispy_field }}
+                </div>
+                
+                <div>
+                    {{ form.remote_work|as_crispy_field }}
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-6">
+                <a href="{% if job %}{% url 'job_detail' job.pk %}{% else %}{% url 'job_list' %}{% endif %}" 
+                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    {{ action }} Job
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

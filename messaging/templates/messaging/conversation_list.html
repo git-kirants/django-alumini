@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Messages</h1>
+
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        {% if conversations %}
+            <div class="divide-y divide-gray-200">
+                {% for conversation in conversations %}
+                    <a href="{% url 'messaging:conversation_detail' conversation.id %}" 
+                       class="block hover:bg-gray-50">
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-900">
+                                        {{ conversation.get_other_participant.get_full_name }}
+                                    </h2>
+                                    {% if conversation.last_message %}
+                                        <p class="text-gray-600 text-sm mt-1">
+                                            {{ conversation.last_message.content|truncatechars:50 }}
+                                        </p>
+                                        <p class="text-gray-500 text-xs mt-1">
+                                            {{ conversation.last_message.created_at|date:"M d, Y" }}
+                                        </p>
+                                    {% else %}
+                                        <p class="text-gray-500 text-sm mt-1">No messages yet</p>
+                                    {% endif %}
+                                </div>
+                                {% if conversation.messages.filter.exists %}
+                                    <div class="flex-shrink-0">
+                                        {% with unread_count=conversation.messages.filter.count %}
+                                            {% if unread_count > 0 %}
+                                                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-600 rounded-full">
+                                                    {{ unread_count }}
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-6 text-center">
+                <p class="text-gray-500">No conversations yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

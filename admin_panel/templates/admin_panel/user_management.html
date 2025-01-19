@@ -1,0 +1,97 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">User Management</h2>
+        <div class="flex space-x-4">
+            <form class="flex items-center">
+                <select name="user_type" class="form-select mr-2">
+                    <option value="">All Types</option>
+                    <option value="student" {% if request.GET.user_type == 'student' %}selected{% endif %}>Student</option>
+                    <option value="alumni" {% if request.GET.user_type == 'alumni' %}selected{% endif %}>Alumni</option>
+                    <option value="staff" {% if request.GET.user_type == 'staff' %}selected{% endif %}>Staff</option>
+                </select>
+                <input type="text" name="search" placeholder="Search users..." 
+                       class="form-input mr-2" value="{{ request.GET.search }}">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user in users %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ user.get_full_name|default:user.username }}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.user_type == 'student' %}bg-blue-100 text-blue-800
+                            {% elif user.user_type == 'alumni' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user.get_user_type_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.date_joined|date }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ user.is_active|yesno:"Active,Inactive" }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                        {% if user.is_active %}
+                            <a href="#" class="text-red-600 hover:text-red-900">Deactivate</a>
+                        {% else %}
+                            <a href="#" class="text-green-600 hover:text-green-900">Activate</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        <nav class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between">
+                {% if users.has_previous %}
+                    <a href="?page={{ users.previous_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
+                       class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
+                       class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+</div>
+{% endblock %} 

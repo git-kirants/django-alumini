@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Make a Donation{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Make a Donation</h1>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">{{ fund.name }}</h2>
+            <p class="text-gray-600 mt-2">{{ fund.description }}</p>
+            
+            <div class="mt-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Current Progress</span>
+                    <span>{{ fund.progress_percentage|floatformat:1 }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" 
+                         style="width: {{ fund.progress_percentage }}%"></div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-600 mt-1">
+                    <span>${{ fund.current_amount|floatformat:2 }} raised</span>
+                    <span>Goal: ${{ fund.target_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {{ form|crispy }}
+            
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'fund_list' %}" 
+                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Make Donation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ action }} Success Story{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ action }} Success Story</h1>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    {{ form.title|as_crispy_field }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form.content|as_crispy_field }}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        {{ form.graduation_year|as_crispy_field }}
+                    </div>
+                    <div>
+                        {{ form.current_position|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form.company|as_crispy_field }}
+                </div>
+
+                <div class="mb-6">
+                    {{ form.image|as_crispy_field }}
+                    {% if form.image.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.image.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'success:story_list' %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        {{ action }} Story
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

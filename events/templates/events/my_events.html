@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}My Events{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Registered Events -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Registered Events</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for event in registered_events %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover">
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ event.title }}</h3>
+                    <div class="text-sm text-gray-500 mb-4">
+                        <div><i class="far fa-calendar mr-1"></i> {{ event.date|date:"M d, Y" }}</div>
+                        <div><i class="far fa-clock mr-1"></i> {{ event.date|date:"g:i A" }}</div>
+                    </div>
+                    <a href="{% url 'event_detail' event.pk %}" 
+                       class="block text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-8 text-gray-500">
+                You haven't registered for any events yet.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Created Events (if user is staff) -->
+    {% if user.is_staff %}
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Events I Created</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for event in created_events %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover">
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ event.title }}</h3>
+                    <div class="text-sm text-gray-500 mb-4">
+                        <div><i class="far fa-calendar mr-1"></i> {{ event.date|date:"M d, Y" }}</div>
+                        <div><i class="far fa-user mr-1"></i> {{ event.participants.count }} registered</div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'event_detail' event.pk %}" 
+                           class="flex-1 text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            View
+                        </a>
+                        <a href="{% url 'event_participants' event.pk %}" 
+                           class="flex-1 text-center bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200">
+                            Participants
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-8 text-gray-500">
+                You haven't created any events yet.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

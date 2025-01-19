@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Conversation with {{ conversation.get_other_participant.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-xl font-semibold text-gray-900">
+                        {{ conversation.get_other_participant.get_full_name }}
+                    </h1>
+                    <a href="{% url 'messaging:conversation_list' %}" 
+                       class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="px-6 py-4 h-96 overflow-y-auto" id="messages-container">
+                {% for message in conversation.messages.all %}
+                    <div class="mb-4 {% if message.sender == request.user %}ml-auto{% endif %} max-w-[75%]">
+                        <div class="{% if message.sender == request.user %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-900{% endif %} rounded-lg px-4 py-2">
+                            {{ message.content }}
+                        </div>
+                        <div class="flex items-center mt-1 {% if message.sender == request.user %}justify-end{% endif %}">
+                            <span class="text-xs text-gray-500">
+                                {{ message.created_at|date:"g:i A" }}
+                            </span>
+                            {% if message.sender != request.user %}
+                                <button class="ml-2 text-xs text-gray-500 hover:text-red-600"
+                                        onclick="window.location.href='{% url 'messaging:report_message' message.id %}'">
+                                    <i class="fas fa-flag"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message Form -->
+            <div class="px-6 py-4 bg-gray-50 border-t">
+                <form method="post" id="message-form">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="mt-2 flex justify-end">
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom of messages
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // Optional: Add real-time message sending with AJAX
+    document.getElementById('message-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Add message to container
+                const messageHtml = `
+                    <div class="mb-4 ml-auto max-w-[75%]">
+                        <div class="bg-blue-600 text-white rounded-lg px-4 py-2">
+                            ${data.message.content}
+                        </div>
+                        <div class="flex items-center justify-end mt-1">
+                            <span class="text-xs text-gray-500">
+                                ${data.message.created_at}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                form.reset();
+            }
+        });
+    });
+</script>
+{% endblock %} 

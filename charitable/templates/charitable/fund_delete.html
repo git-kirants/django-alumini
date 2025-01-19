@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Delete Fund{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-lg mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Delete Fund</h1>
+        
+        <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <p class="text-red-700">
+                Are you sure you want to delete the fund "{{ fund.name }}"? This action cannot be undone.
+            </p>
+            {% if fund.donations.exists %}
+                <p class="text-red-600 mt-2">
+                    Warning: This fund has existing donations and applications. Deleting it will affect these records.
+                </p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'fund_detail' fund.id %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    Delete Fund
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

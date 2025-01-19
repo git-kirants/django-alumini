@@ -1,0 +1,71 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- User Metrics -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">User Metrics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for metric in metrics.user_metrics %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
+                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:0 }}</p>
+                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Event Metrics -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Event Metrics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for metric in metrics.event_metrics %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
+                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:0 }}</p>
+                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Donation Metrics -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Donation Metrics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for metric in metrics.donation_metrics %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
+                <p class="mt-1 text-3xl font-semibold text-gray-900">${{ metric.value|floatformat:2 }}</p>
+                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">System Performance</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for metric in metrics.performance_metrics %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
+                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:2 }}ms</p>
+                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <div class="flex justify-end">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh Metrics
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

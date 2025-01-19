@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Monitor{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Celery Task Monitor</h1>
+
+    <!-- Worker Status -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Worker Status</h2>
+        <div class="flex items-center">
+            <div class="w-3 h-3 rounded-full {% if workers_online %}bg-green-500{% else %}bg-red-500{% endif %} mr-2"></div>
+            <span>Workers are {% if workers_online %}online{% else %}offline{% endif %}</span>
+        </div>
+    </div>
+
+    <!-- Task Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Today's Statistics</h3>
+            <div class="space-y-2">
+                <p>Total Tasks: {{ metrics.total }}</p>
+                <p>Successful: {{ metrics.success }}</p>
+                <p>Failed: {{ metrics.failure }}</p>
+                <p>Retried: {{ metrics.retry }}</p>
+                <p>Revoked: {{ metrics.revoked }}</p>
+                <p>Average Runtime: {{ metrics.avg_runtime|floatformat:2 }}s</p>
+            </div>
+        </div>
+        
+        <!-- Active Tasks -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Active Tasks</h3>
+            {% for worker, tasks in active_tasks.items %}
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-700">{{ worker }}</h4>
+                    <ul class="list-disc list-inside">
+                        {% for task in tasks %}
+                            <li>{{ task.name }} ({{ task.id|truncatechars:8 }})</li>
+                        {% empty %}
+                            <li class="text-gray-500">No active tasks</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Reserved Tasks -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Reserved Tasks</h3>
+            {% for worker, tasks in reserved_tasks.items %}
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-700">{{ worker }}</h4>
+                    <ul class="list-disc list-inside">
+                        {% for task in tasks %}
+                            <li>{{ task.name }} ({{ task.id|truncatechars:8 }})</li>
+                        {% empty %}
+                            <li class="text-gray-500">No reserved tasks</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <div class="text-center">
+        <button onclick="location.reload()" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Refresh Data
+        </button>
+    </div>
+</div>
+{% endblock %} 

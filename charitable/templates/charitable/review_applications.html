@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Review Scholarship Applications{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Review Scholarship Applications</h1>
+
+    <div class="space-y-4">
+        {% for application in applications %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">{{ application.fund.name }}</h2>
+                        <p class="text-gray-600">Applied on {{ application.applied_date|date:"F j, Y" }}</p>
+                    </div>
+                    <a href="{% url 'review_application' application.id %}" 
+                       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Review Application
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Applicant</h3>
+                        <p class="text-gray-800">{{ application.student.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Academic Year</h3>
+                        <p class="text-gray-800">{{ application.academic_year }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">GPA</h3>
+                        <p class="text-gray-800">{{ application.gpa }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Financial Need</h3>
+                    <p class="text-gray-800">{{ application.financial_need }}</p>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Achievements</h3>
+                    <p class="text-gray-800">{{ application.achievements }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-8 bg-white rounded-lg shadow">
+            <p class="text-gray-500">No pending applications to review.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

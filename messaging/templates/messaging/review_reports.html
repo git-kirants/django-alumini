@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Review Message Reports{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Review Message Reports</h1>
+
+    <div class="space-y-6">
+        {% for report in reports %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h2 class="text-sm font-semibold text-gray-600 uppercase">Reported Message</h2>
+                            <p class="text-gray-800 mt-1">{{ report.message.content }}</p>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-semibold text-gray-600 uppercase">Report Details</h2>
+                            <p class="text-gray-800 mt-1">
+                                <span class="font-medium">Reason:</span> {{ report.get_reason_display }}
+                            </p>
+                            {% if report.details %}
+                                <p class="text-gray-800 mt-1">{{ report.details }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                        <div>
+                            <p>Reported by: {{ report.reported_by.get_full_name }}</p>
+                            <p>Date: {{ report.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <div>
+                            <p>Message from: {{ report.message.sender.get_full_name }}</p>
+                            <p>Message date: {{ report.message.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <form method="post" action="{% url 'messaging:resolve_report' report.id %}">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                Mark as Resolved
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-8 bg-white rounded-lg shadow">
+                <p class="text-gray-500">No pending reports to review.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

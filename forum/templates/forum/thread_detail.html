@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ thread.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Thread Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ thread.title }}</h1>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mt-2">
+                    <span>Posted by {{ thread.author.get_full_name|default:thread.author.username }}</span>
+                    <span>{{ thread.created_at|date:"M d, Y" }}</span>
+                    <span>{{ thread.views }} views</span>
+                    <span>{{ replies.count }} replies</span>
+                </div>
+            </div>
+            {% if user.is_staff %}
+                <div class="space-x-2">
+                    <a href="{% url 'forum:thread_pin' thread.id %}" 
+                       class="text-blue-600 hover:text-blue-800">
+                        {% if thread.is_pinned %}Unpin{% else %}Pin{% endif %}
+                    </a>
+                    <a href="{% url 'forum:thread_lock' thread.id %}" 
+                       class="text-red-600 hover:text-red-800">
+                        {% if thread.is_locked %}Unlock{% else %}Lock{% endif %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Original Post -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="prose max-w-none">
+            {{ thread.content|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Replies -->
+    <div class="space-y-4 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Replies</h2>
+        {% for reply in replies %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-4">
+                        {% if reply.author.profile_picture %}
+                            <img src="{{ reply.author.profile_picture.url }}" 
+                                 alt="Profile picture" 
+                                 class="w-10 h-10 rounded-full">
+                        {% endif %}
+                        <div>
+                            <div class="font-semibold">
+                                {{ reply.author.get_full_name|default:reply.author.username }}
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                {{ reply.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if reply.is_solution %}
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            Solution
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="prose max-w-none">
+                    {{ reply.content|linebreaks }}
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-8 text-gray-500">
+                No replies yet. Be the first to reply!
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Reply Form -->
+    {% if not thread.is_locked or user.is_staff %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Post a Reply</h2>
+            <form method="post" action="{% url 'forum:reply_create' thread.id %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Your Reply
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {{ form.content.errors|join:", " }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Post Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-600">
+            This thread is locked and no longer accepts replies.
+        </div>
+    {% endif %}
+
+    <!-- Back to Category -->
+    <div class="mt-6">
+        <a href="{% url 'forum:category_detail' thread.category.id %}" 
+           class="text-blue-600 hover:text-blue-800">
+            ← Back to {{ thread.category.name }}
+        </a>
+    </div>
+</div>
+{% endblock %} 

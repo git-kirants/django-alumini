@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Event Participants{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">
+                Participants - {{ event.title }}
+            </h1>
+            <a href="{% url 'event_detail' event.pk %}" 
+               class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                Back to Event
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Registration Date
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for registration in registrations %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ registration.user.get_full_name|default:registration.user.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-sm 
+                                {% if registration.status == 'registered' %}bg-green-100 text-green-800
+                                {% elif registration.status == 'waitlisted' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %} 
+                                rounded-full">
+                                {{ registration.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ registration.registration_date|date:"F d, Y - g:i A" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                            No participants registered yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

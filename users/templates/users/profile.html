@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="md:flex">
+                <!-- Profile Sidebar -->
+                <div class="md:w-1/3 p-6 bg-gray-50 border-r border-gray-200">
+                    <div class="text-center">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile Picture"
+                                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-500">
+                        {% else %}
+                            <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-blue-500 flex items-center justify-center text-white text-4xl">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            </div>
+                        {% endif %}
+                        <h2 class="text-2xl font-bold text-gray-800">{{ user.get_full_name }}</h2>
+                        <p class="text-gray-600">{{ user.get_user_type_display }}</p>
+                        {% if user.graduation_year %}
+                            <p class="text-gray-500">Class of {{ user.graduation_year }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-6">
+                        {% if user.company %}
+                            <div class="mb-4">
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Current Company</h3>
+                                <p class="text-gray-800">{{ user.company }}</p>
+                            </div>
+                        {% endif %}
+                        {% if user.position %}
+                            <div class="mb-4">
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Position</h3>
+                                <p class="text-gray-800">{{ user.position }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if user.user_type == 'alumni' %}
+                        <div class="mt-6 space-y-4">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Professional Info</h3>
+                                <p class="text-gray-800">{{ user.current_job_title }} at {{ user.current_company }}</p>
+                                <p class="text-gray-600">{{ user.get_industry_display }}</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Experience</h3>
+                                <p class="text-gray-800">{{ user.years_of_experience }} years</p>
+                            </div>
+                            
+                            {% if user.skills %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Skills</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for skill in user.skills.split|slice:":5" %}
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{{ skill }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Mentorship Status</h3>
+                                <p class="text-gray-800">{{ user.get_mentorship_availability_display }}</p>
+                            </div>
+                            
+                            {% if user.linkedin_profile %}
+                            <div>
+                                <a href="{{ user.linkedin_profile }}" target="_blank" 
+                                   class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                    <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Add this button in the profile actions section -->
+                    {% if user != profile_user %}
+                        <div class="mt-4">
+                            <a href="{% url 'messaging:start_conversation' profile_user.id %}" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-envelope mr-2"></i>
+                                Send Message
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Profile Edit Form -->
+                <div class="md:w-2/3 p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Edit Profile</h3>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-4 p-4 rounded {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="space-y-4">
+                            {{ form|crispy }}
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" 
+                                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
