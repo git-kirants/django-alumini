@@ -1,44 +1,111 @@
-{% extends "base.html" %}
+{% extends "charitable/_wrapper.html" %}
 {% load crispy_forms_tags %}
 
 {% block title %}Make a Donation{% endblock %}
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Make a Donation</h1>
-        
+{% block charitable_content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Make a Donation</h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 p-6">
+        <!-- Fund Info -->
         <div class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-900">{{ fund.name }}</h2>
-            <p class="text-gray-600 mt-2">{{ fund.description }}</p>
+            <h2 class="text-lg font-semibold text-white">{{ fund.name }}</h2>
+            <p class="text-white/70 mt-2">{{ fund.description }}</p>
             
             <div class="mt-4">
-                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <div class="flex justify-between text-sm text-white/70 mb-1">
                     <span>Current Progress</span>
                     <span>{{ fund.progress_percentage|floatformat:1 }}%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-blue-600 h-2.5 rounded-full" 
+                <div class="w-full bg-white/10 rounded-full h-2.5">
+                    <div class="bg-gradient-to-r from-blue-600 to-emerald-600 h-2.5 rounded-full" 
                          style="width: {{ fund.progress_percentage }}%"></div>
                 </div>
-                <div class="flex justify-between text-sm text-gray-600 mt-1">
+                <div class="flex justify-between text-sm text-white/70 mt-1">
                     <span>${{ fund.current_amount|floatformat:2 }} raised</span>
                     <span>Goal: ${{ fund.target_amount|floatformat:2 }}</span>
                 </div>
             </div>
         </div>
+
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+            <div class="mb-6 p-4 bg-rose-500/20 border border-rose-500/30 rounded-xl">
+                {% for error in form.non_field_errors %}
+                    <p class="text-rose-300">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         
+        <!-- Donation Form -->
         <form method="post" class="space-y-6">
             {% csrf_token %}
-            {{ form|crispy }}
             
-            <div class="flex justify-end space-x-4">
+            <!-- Amount Field -->
+            <div class="form-group">
+                <label for="id_amount" class="block text-sm font-medium text-white/80 mb-2">
+                    Donation Amount <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+                    <input type="number" 
+                           name="amount"
+                           id="id_amount"
+                           value="{{ form.amount.value|default:'' }}"
+                           class="w-full pl-8 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200"
+                           required
+                           step="0.01"
+                           min="0"
+                           max="{{ fund.remaining_amount }}"
+                           placeholder="Enter donation amount">
+                </div>
+                {% if form.amount.errors %}
+                    {% for error in form.amount.errors %}
+                        <p class="mt-1 text-sm text-rose-400">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                <p class="mt-1 text-sm text-white/50">Maximum allowed: ${{ fund.remaining_amount|floatformat:2 }}</p>
+            </div>
+
+            <!-- Message Field -->
+            <div class="form-group">
+                <label for="id_message" class="block text-sm font-medium text-white/80 mb-2">
+                    Message (Optional)
+                </label>
+                <textarea name="message"
+                          id="id_message"
+                          class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200"
+                          rows="4"
+                          placeholder="Add a message with your donation">{{ form.message.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Is Anonymous Field -->
+            <div class="form-group">
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox"
+                           name="is_anonymous"
+                           id="id_is_anonymous"
+                           {% if form.is_anonymous.value %}checked{% endif %}
+                           class="w-5 h-5 rounded bg-white/10 border-white/20 text-emerald-600 focus:ring-emerald-500/30">
+                    <label for="id_is_anonymous" class="text-white/70">
+                        Make this donation anonymous
+                    </label>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 pt-6">
                 <a href="{% url 'fund_list' %}" 
-                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                   class="px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-all duration-200">
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-6 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-blue-600/20">
                     Make Donation
                 </button>
             </div>

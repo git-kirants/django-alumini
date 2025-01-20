@@ -31,21 +31,78 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for job in jobs %}
         <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
+            <!-- Company Logo -->
+            <div class="h-32 bg-gray-700 flex items-center justify-center p-4">
+                {% if job.company_logo %}
+                    <img src="{{ job.company_logo.url }}" 
+                         alt="{{ job.company }} logo" 
+                         class="max-h-full w-auto object-contain">
+                {% else %}
+                    <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center">
+                        <span class="text-2xl text-gray-400">
+                            {{ job.company|make_list|first|upper }}
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+            
             <div class="p-4">
                 <h2 class="text-xl font-semibold text-white">{{ job.title }}</h2>
+                <p class="text-gray-400 text-sm mb-2">{{ job.company }}</p>
                 <p class="text-gray-300 mb-4">{{ job.description|truncatewords:30 }}</p>
-                <div class="flex justify-between items-center text-sm text-gray-400">
-                    <div>
-                        <i class="far fa-calendar mr-1"></i>
-                        {{ job.date_posted|date:"M d, Y" }}
+                
+                <!-- Job Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-700/50 rounded-lg p-3">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <i class="far fa-user mr-2"></i>
+                            <span>Applicants</span>
+                        </div>
+                        <p class="text-white font-semibold mt-1">
+                            {{ job.applications.count }}
+                        </p>
                     </div>
-                    <div>
-                        <i class="far fa-user mr-1"></i>
-                        {{ job.applicants.count }} applicants
+                    <div class="bg-gray-700/50 rounded-lg p-3">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <i class="far fa-clock mr-2"></i>
+                            <span>Deadline</span>
+                        </div>
+                        <p class="text-white font-semibold mt-1">
+                            {{ job.deadline|date:"M d, Y" }}
+                        </p>
                     </div>
                 </div>
+
+                <!-- Additional Info -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
+                        <i class="fas fa-briefcase mr-1"></i>
+                        {{ job.get_job_type_display }}
+                    </span>
+                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        {{ job.location }}
+                    </span>
+                    {% if job.remote_work %}
+                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
+                        <i class="fas fa-home mr-1"></i>
+                        Remote
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Status Badge -->
+                {% if job.is_expired %}
+                <div class="mb-4">
+                    <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        Expired
+                    </span>
+                </div>
+                {% endif %}
+
                 <a href="{% url 'job_detail' job.pk %}" 
-                   class="mt-4 block text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                   class="block text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                     View Details
                 </a>
             </div>

@@ -108,28 +108,43 @@ def alumni_directory(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
-        # Get all the form data from request.POST
-        User.first_name = request.POST.get('first_name')
-        User.last_name = request.POST.get('last_name')
-        User.email = request.POST.get('email')
-        User.graduation_year = request.POST.get('graduation_year')
-        User.bio = request.POST.get('bio')
+        # Get the current user instance
+        user = request.user
         
-        if User.user_type == 'alumni':
-            User.current_company = request.POST.get('current_company')
-            User.current_job_title = request.POST.get('current_job_title')
-            User.years_of_experience = request.POST.get('years_of_experience')
-            User.industry = request.POST.get('industry')
-            User.portfolio_link = request.POST.get('portfolio_link')
-            User.skills = request.POST.get('skills')
-            User.certifications = request.POST.get('certifications')
-            User.achievements = request.POST.get('achievements')
+        # Update user fields
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+        
+        # Handle graduation_year - convert to int or set to None if empty
+        graduation_year = request.POST.get('graduation_year')
+        user.graduation_year = int(graduation_year) if graduation_year else None
+        
+        user.bio = request.POST.get('bio')
+        
+        if user.user_type == 'alumni':
+            user.current_company = request.POST.get('current_company')
+            user.current_job_title = request.POST.get('current_job_title')
+            
+            # Handle years_of_experience - convert to int or set to 0 if empty
+            years_exp = request.POST.get('years_of_experience')
+            user.years_of_experience = int(years_exp) if years_exp else 0
+            
+            user.industry = request.POST.get('industry')
+            user.portfolio_link = request.POST.get('portfolio_link')
+            user.skills = request.POST.get('skills')
+            user.certifications = request.POST.get('certifications')
+            user.achievements = request.POST.get('achievements')
         
         if 'profile_picture' in request.FILES:
-            User.profile_picture = request.FILES['profile_picture']
+            user.profile_picture = request.FILES['profile_picture']
         
-        User.save()
-        return redirect('users:profile')
+        try:
+            user.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('users:profile')
+        except ValueError as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
     
     return render(request, 'users/update_profile.html', {'user': request.user})
 
