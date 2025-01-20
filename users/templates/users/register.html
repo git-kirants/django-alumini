@@ -1,35 +1,139 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
+{% block title %}Register{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Register as a Student</h2>
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full space-y-8">
+        {% if messages %}
+            {% with latest_message=messages|first %}
+                <div class="{% if latest_message.tags == 'error' %}bg-rose-500/20 border border-rose-500/50 text-rose-300{% else %}bg-emerald-500/20 border border-emerald-500/50 text-emerald-300{% endif %} px-4 py-3 rounded-xl relative backdrop-blur-sm" role="alert">
+                    <span class="block sm:inline">{{ latest_message }}</span>
                 </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'register' %}?user_type=student">
-                        {% csrf_token %}
-                        {{ student_form|crispy }}
-                        <button type="submit" class="btn btn-primary">Register as Student</button>
-                    </form>
+            {% endwith %}
+        {% endif %}
+
+        <!-- Student Registration -->
+        <div class="bg-white/10 backdrop-blur-lg p-8 rounded-xl shadow-lg border border-white/20">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-white">
+                    Register as a Student
+                </h2>
+                <p class="mt-2 text-sm text-slate-400">
+                    Join our network as a current student
+                </p>
+            </div>
+
+            <form method="POST" action="{% url 'register' %}?user_type=student" class="space-y-6">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    {% for field in student_form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-2">
+                                {{ field.label }}
+                            </label>
+                            <div class="relative">
+                                {{ field|as_crispy_field }}
+                                {% if field.name == 'username' %}
+                                    <i class="fas fa-user absolute left-4 top-3.5 text-white/50"></i>
+                                {% elif field.name == 'email' %}
+                                    <i class="fas fa-envelope absolute left-4 top-3.5 text-white/50"></i>
+                                {% elif 'password' in field.name %}
+                                    <i class="fas fa-lock absolute left-4 top-3.5 text-white/50"></i>
+                                {% endif %}
+                            </div>
+                            {% if field.help_text %}
+                                <p class="mt-1 text-sm text-slate-400">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" 
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                    Register as Student
+                </button>
+            </form>
+        </div>
+
+        <!-- Alumni Registration -->
+        <div class="bg-white/10 backdrop-blur-lg p-8 rounded-xl shadow-lg border border-white/20">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-white">
+                    Register as an Alumni
+                </h2>
+                <p class="mt-2 text-sm text-slate-400">
+                    Join our network as a graduate
+                </p>
+            </div>
+
+            <form method="POST" action="{% url 'register' %}?user_type=alumni" class="space-y-6">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    {% for field in alumni_form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-2">
+                                {{ field.label }}
+                            </label>
+                            <div class="relative">
+                                {{ field|as_crispy_field }}
+                                {% if field.name == 'username' %}
+                                    <i class="fas fa-user absolute left-4 top-3.5 text-white/50"></i>
+                                {% elif field.name == 'email' %}
+                                    <i class="fas fa-envelope absolute left-4 top-3.5 text-white/50"></i>
+                                {% elif 'password' in field.name %}
+                                    <i class="fas fa-lock absolute left-4 top-3.5 text-white/50"></i>
+                                {% endif %}
+                            </div>
+                            {% if field.help_text %}
+                                <p class="mt-1 text-sm text-slate-400">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" 
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                    Register as Alumni
+                </button>
+            </form>
+        </div>
+
+        <!-- Login Link -->
+        <div class="text-center">
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-white/10"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-slate-900 text-slate-400">
+                        Already have an account?
+                    </span>
                 </div>
             </div>
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h2>Register as an Alumni</h2>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'register' %}?user_type=alumni">
-                        {% csrf_token %}
-                        {{ alumni_form|crispy }}
-                        <button type="submit" class="btn btn-primary">Register as Alumni</button>
-                    </form>
-                </div>
+            <div class="mt-4">
+                <a href="{% url 'users:login' %}" 
+                   class="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">
+                    Sign in here
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Override crispy-forms default styles */
+    .form-control {
+        @apply w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200;
+    }
+    
+    .asteriskField {
+        @apply text-rose-400 ml-1;
+    }
+    
+    .help-block {
+        @apply text-slate-400 text-sm mt-1;
+    }
+</style>
 {% endblock %}

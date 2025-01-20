@@ -1,23 +1,111 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
+{% block title %}Register as Student{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Register as a Student</h2>
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white/10 backdrop-blur-lg p-8 rounded-xl shadow-lg border border-white/20">
+        <div>
+            <h2 class="mt-2 text-center text-3xl font-extrabold text-white">
+                Join as a Student
+            </h2>
+            <p class="mt-2 text-center text-sm text-slate-400">
+                Create your student account to connect with alumni
+            </p>
+        </div>
+
+        {% if messages %}
+            {% with latest_message=messages|first %}
+                <div class="{% if latest_message.tags == 'error' %}bg-rose-500/20 border border-rose-500/50 text-rose-300{% else %}bg-emerald-500/20 border border-emerald-500/50 text-emerald-300{% endif %} px-4 py-3 rounded-xl relative backdrop-blur-sm" role="alert">
+                    <span class="block sm:inline">{{ latest_message }}</span>
                 </div>
-                <div class="card-body">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary">Register as Student</button>
-                    </form>
+            {% endwith %}
+        {% endif %}
+
+        <p class="text-sm text-white/70 mb-4">Fields marked with * are required</p>
+
+        <form method="POST" class="mt-8 space-y-6">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {% for field in form %}
+                    <div>
+                        <div class="relative">
+                            {{ field|as_crispy_field }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" 
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                    <i class="fas fa-user-graduate text-white/70 group-hover:text-white/90 transition-colors duration-200"></i>
+                </span>
+                Register as Student
+            </button>
+        </form>
+
+        <div class="mt-6 space-y-4">
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-white/10"></div>
                 </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-slate-900 text-slate-400">
+                        Are you an Alumni?
+                    </span>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{% url 'users:register_alumni' %}" 
+                   class="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">
+                    Register as Alumni here
+                </a>
+            </div>
+
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-white/10"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-slate-900 text-slate-400">
+                        Already have an account?
+                    </span>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{% url 'users:login' %}" 
+                   class="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">
+                    Sign in here
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Target crispy form labels with higher specificity */
+    div.form-group > label,
+    .form-group label,
+    label.control-label,
+    label.requiredField,
+    .asteriskField,
+    form label {
+        color: white !important;
+        opacity: 1 !important;
+    }
+
+    /* Ensure text is visible */
+    .form-group {
+        color: white !important;
+    }
+
+    /* Keep help text slightly transparent */
+    .help-block,
+    .help-text {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+</style>
+
 {% endblock %} 

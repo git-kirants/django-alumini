@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import User
+from django.core.validators import EmailValidator
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -171,19 +172,87 @@ class ProfileUpdateForm(forms.ModelForm):
                 self.fields[field_name].help_text = help_text
 
 class StudentRegistrationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
-
-class AlumniRegistrationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+    email = forms.EmailField(
+        validators=[EmailValidator()],
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
+        })
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add form-control class to all fields
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
+        # Mark required fields
+        required_fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = True
+                if self.fields[field_name].label:  # Check if label exists
+                    self.fields[field_name].label += " *"
+                else:
+                    self.fields[field_name].label = field_name.title() + " *"
+        # Customize field labels and styling
+        field_labels = {
+            'username': "Username",
+            'email': "Email Address",
+            'first_name': "First Name",
+            'last_name': "Last Name",
+            'password1': "Password",
+            'password2': "Confirm Password"
+        }
+        
+        for field_name, field in self.fields.items():
+            # Set labels
+            field.label = field_labels.get(field_name, field.label)
+            
+            # Update widget attributes
+            field.widget.attrs.update({
+                'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
             })
+
+            # Make help text white
+            if field.help_text:
+                field.help_text = f'<span class="text-white/70 text-sm">{field.help_text}</span>'
+
+class AlumniRegistrationForm(UserCreationForm):
+    email = forms.EmailField(
+        validators=[EmailValidator()],
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mark required fields
+        required_fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = True
+                if self.fields[field_name].label:  # Check if label exists
+                    self.fields[field_name].label += " *"
+                else:
+                    self.fields[field_name].label = field_name.title() + " *"
+        # Customize field labels and styling
+        field_labels = {
+            'username': "Username",
+            'email': "Email Address",
+            'first_name': "First Name",
+            'last_name': "Last Name",
+            'password1': "Password",
+            'password2': "Confirm Password"
+        }
+        
+        for field_name, field in self.fields.items():
+            # Set labels
+            field.label = field_labels.get(field_name, field.label)
+            
+            # Update widget attributes
+            field.widget.attrs.update({
+                'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
+            })
+
+            # Make help text white
+            if field.help_text:
+                field.help_text = f'<span class="text-white/70 text-sm">{field.help_text}</span>'

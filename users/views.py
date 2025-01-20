@@ -6,6 +6,7 @@ from .forms import CustomUserCreationForm, ProfileUpdateForm, StudentRegistratio
 from django.contrib.auth import get_user_model
 from messaging.models import Conversation
 from django.urls import reverse
+from django.views.decorators.cache import never_cache
 
 User = get_user_model()
 
@@ -73,10 +74,16 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'users/login.html')
 
+@never_cache
 def logout_view(request):
     logout(request)
+    response = redirect('users:login')
+    # Prevent caching of authenticated pages
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
     messages.success(request, 'You have been logged out.')
-    return redirect('login')
+    return response
 
 @login_required
 def profile_view(request, username=None):
