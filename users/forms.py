@@ -9,7 +9,9 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['user_type'].widget = forms.RadioSelect(choices=User.USER_TYPES)
+        # Allow only 'alumni' and 'student' as user types
+        choices = [(ut[0], ut[1]) for ut in User.USER_TYPES if ut[0] in ['alumni', 'student']]
+        self.fields['user_type'].widget = forms.RadioSelect(choices=choices)
 
 class ProfileUpdateForm(forms.ModelForm):
     skills = forms.CharField(
@@ -92,3 +94,13 @@ class ProfileUpdateForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
+
+class StudentRegistrationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+
+class AlumniRegistrationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')

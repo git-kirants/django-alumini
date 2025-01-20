@@ -2,25 +2,44 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, ProfileUpdateForm
+from .forms import CustomUserCreationForm, ProfileUpdateForm, StudentRegistrationForm, AlumniRegistrationForm
 from django.contrib.auth import get_user_model
 from messaging.models import Conversation
+from django.urls import reverse
 
 User = get_user_model()
 
 # Create your views here.
 
-def register(request):
+def register_student(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.user_type = 'student'  # Set user type to student
+            user.save()
             login(request, user)
             messages.success(request, 'Registration successful!')
             return redirect('users:profile')
     else:
-        form = CustomUserCreationForm()
-    return render(request, 'users/register.html', {'form': form})
+        form = StudentRegistrationForm()
+
+    return render(request, 'users/register_student.html', {'form': form})
+
+def register_alumni(request):
+    if request.method == 'POST':
+        form = AlumniRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.user_type = 'alumni'  # Set user type to alumni
+            user.save()
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            return redirect('users:profile')
+    else:
+        form = AlumniRegistrationForm()
+
+    return render(request, 'users/register_alumni.html', {'form': form})
 
 @login_required
 def profile(request):
@@ -33,7 +52,13 @@ def profile(request):
     else:
         form = ProfileUpdateForm(instance=request.user)
     
-    return render(request, 'users/profile.html', {'form': form})
+    # Add profile_user to the context
+    context = {
+        'form': form,
+        'profile_user': request.user,
+        'conversation': None
+    }
+    return render(request, 'users/profile.html', context)
 
 def login_view(request):
     if request.method == 'POST':
@@ -96,6 +121,25 @@ def update_profile(request):
 @login_required
 def user_profile(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
+    # Check if there's an existing conversation (like in your profile_view)
+    conversation = None
+    if request.user != profile_user:
+        conversation = Conversation.objects.filter(
+            participants=request.user
+        ).filter(
+            participants=profile_user
+        ).first()
+    
     return render(request, 'users/profile.html', {
-        'profile_user': profile_user
+        'profile_user': profile_user,
+        'conversation': conversation
     })
+
+def some_view(request):
+    # Change this
+    return redirect('alumni_directory')
+    
+    # To this
+    return redirect('users:alumni_directory')
+    # Or use reverse()
+    return redirect(reverse('users:alumni_directory'))

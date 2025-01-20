@@ -7,13 +7,25 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h2>Register</h2>
+                    <h2>Register as a Student</h2>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" action="{% url 'register' %}?user_type=student">
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary">Register</button>
+                        {{ student_form|crispy }}
+                        <button type="submit" class="btn btn-primary">Register as Student</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2>Register as an Alumni</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'register' %}?user_type=alumni">
+                        {% csrf_token %}
+                        {{ alumni_form|crispy }}
+                        <button type="submit" class="btn btn-primary">Register as Alumni</button>
                     </form>
                 </div>
             </div>

@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('users.urls')),
+    path('users/', include(('users.urls', 'users'), namespace='users')),
     path('events/', include('events.urls')),
     path('jobs/', include('jobs.urls')),
     path('charitable/', include('charitable.urls')),
@@ -13,6 +13,5 @@ urlpatterns = [
     path('notifications/', include('notifications.urls', namespace='notifications')),
     path('admin-panel/', include('admin_panel.urls')),
     path('success/', include('success.urls', namespace='success')),
-    path('messages/', include('messaging.urls', namespace='messaging')),
-    path('users/', include('users.urls', namespace='users')),
+    path('messaging/', include('messaging.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

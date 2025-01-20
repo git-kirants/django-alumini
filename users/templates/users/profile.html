@@ -1,125 +1,189 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Profile{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="md:flex">
-                <!-- Profile Sidebar -->
-                <div class="md:w-1/3 p-6 bg-gray-50 border-r border-gray-200">
-                    <div class="text-center">
-                        {% if user.profile_picture %}
-                            <img src="{{ user.profile_picture.url }}" alt="Profile Picture"
-                                 class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-500">
-                        {% else %}
-                            <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-blue-500 flex items-center justify-center text-white text-4xl">
-                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                            </div>
-                        {% endif %}
-                        <h2 class="text-2xl font-bold text-gray-800">{{ user.get_full_name }}</h2>
-                        <p class="text-gray-600">{{ user.get_user_type_display }}</p>
-                        {% if user.graduation_year %}
-                            <p class="text-gray-500">Class of {{ user.graduation_year }}</p>
-                        {% endif %}
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Profile Header -->
+        <div class="bg-gray-800 text-white p-6">
+            <div class="flex items-center space-x-4">
+                {% if profile_user.profile_picture %}
+                    <img src="{{ profile_user.profile_picture.url }}" alt="Profile Picture" 
+                         class="w-24 h-24 rounded-full object-cover border-4 border-white">
+                {% else %}
+                    <div class="w-24 h-24 rounded-full bg-gray-600 flex items-center justify-center">
+                        <i class="fas fa-user text-4xl text-gray-300"></i>
                     </div>
-
-                    <div class="mt-6">
-                        {% if user.company %}
-                            <div class="mb-4">
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Current Company</h3>
-                                <p class="text-gray-800">{{ user.company }}</p>
-                            </div>
-                        {% endif %}
-                        {% if user.position %}
-                            <div class="mb-4">
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Position</h3>
-                                <p class="text-gray-800">{{ user.position }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    {% if user.user_type == 'alumni' %}
-                        <div class="mt-6 space-y-4">
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Professional Info</h3>
-                                <p class="text-gray-800">{{ user.current_job_title }} at {{ user.current_company }}</p>
-                                <p class="text-gray-600">{{ user.get_industry_display }}</p>
-                            </div>
-                            
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Experience</h3>
-                                <p class="text-gray-800">{{ user.years_of_experience }} years</p>
-                            </div>
-                            
-                            {% if user.skills %}
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Skills</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    {% for skill in user.skills.split|slice:":5" %}
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{{ skill }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                            
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-600 uppercase">Mentorship Status</h3>
-                                <p class="text-gray-800">{{ user.get_mentorship_availability_display }}</p>
-                            </div>
-                            
-                            {% if user.linkedin_profile %}
-                            <div>
-                                <a href="{{ user.linkedin_profile }}" target="_blank" 
-                                   class="inline-flex items-center text-blue-600 hover:text-blue-800">
-                                    <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-
-                    <!-- Add this button in the profile actions section -->
-                    {% if user != profile_user %}
-                        <div class="mt-4">
-                            <a href="{% url 'messaging:start_conversation' profile_user.id %}" 
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                <i class="fas fa-envelope mr-2"></i>
-                                Send Message
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- Profile Edit Form -->
-                <div class="md:w-2/3 p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6">Edit Profile</h3>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="mb-4 p-4 rounded {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="space-y-4">
-                            {{ form|crispy }}
-                        </div>
-                        <div class="mt-6">
-                            <button type="submit" 
-                                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Update Profile
-                            </button>
-                        </div>
-                    </form>
+                {% endif %}
+                <div>
+                    <h1 class="text-2xl font-bold">{{ profile_user.get_full_name }}</h1>
+                    <p class="text-gray-300">{{ profile_user.user_type|title }}</p>
                 </div>
             </div>
         </div>
+
+        <!-- Profile Content -->
+        <div class="p-6">
+            {% if request.user == profile_user %}
+                <!-- Edit Profile Button -->
+                <div class="mb-6">
+                    <a href="{% url 'users:update_profile' %}" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Profile
+                    </a>
+                </div>
+
+                <!-- Profile Form (if editing) -->
+                {% if form %}
+                <form method="POST" enctype="multipart/form-data" class="mb-6">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Save Changes
+                    </button>
+                </form>
+                {% endif %}
+            {% endif %}
+
+            <!-- Basic Information -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">Basic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% if profile_user.email %}
+                    <div>
+                        <label class="text-gray-600 text-sm">Email</label>
+                        <p class="text-gray-900">{{ profile_user.email }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile_user.graduation_year %}
+                    <div>
+                        <label class="text-gray-600 text-sm">Graduation Year</label>
+                        <p class="text-gray-900">{{ profile_user.graduation_year }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if profile_user.major %}
+                    <div>
+                        <label class="text-gray-600 text-sm">Major</label>
+                        <p class="text-gray-900">{{ profile_user.major }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if profile_user.current_company %}
+                    <div>
+                        <label class="text-gray-600 text-sm">Current Company</label>
+                        <p class="text-gray-900">{{ profile_user.current_company }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if request.user == profile_user %}
+                        {% if profile_user.phone %}
+                        <div>
+                            <label class="text-gray-600 text-sm">Phone Number</label>
+                            <p class="text-gray-900">{{ profile_user.phone }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if profile_user.address %}
+                        <div>
+                            <label class="text-gray-600 text-sm">Address</label>
+                            <p class="text-gray-900">{{ profile_user.address }}</p>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bio Section -->
+            {% if profile_user.bio %}
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">About</h2>
+                <p class="text-gray-700">{{ profile_user.bio }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Message Button (only show if viewing another user's profile) -->
+            {% if request.user != profile_user %}
+                <div class="mt-6">
+                    {% if conversation %}
+                        <a href="{% url 'messaging:conversation_detail' conversation.id %}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            <i class="fas fa-comments mr-2"></i>
+                            Continue Conversation
+                        </a>
+                    {% else %}
+                        <a href="{% url 'messaging:start_conversation' profile_user.id %}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Send Message
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Message Form -->
+            <form id="message-form" class="mt-4">
+                {% csrf_token %}
+                <div class="flex space-x-2">
+                    <input type="text" name="content" 
+                           class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:border-blue-500"
+                           placeholder="Type your message...">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageForm = document.getElementById('message-form');
+    const messagesContainer = document.getElementById('messages-container');
+
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(messageForm);
+            fetch('{% url "messaging:send_message_ajax" conversation.id %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Add new message to the container
+                    const messageHTML = `
+                        <div class="mb-4 ml-auto max-w-[75%]">
+                            <div class="bg-blue-600 text-white rounded-lg px-4 py-2">
+                                ${data.message.content}
+                            </div>
+                            <div class="flex items-center mt-1 justify-end">
+                                <span class="text-xs text-gray-500">
+                                    ${data.message.timestamp}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+                    messageForm.reset();
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %} 

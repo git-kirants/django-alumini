@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from .models import Conversation, Message, MessageReport
 from .forms import MessageForm, MessageReportForm
 from users.models import User
+from django.views.decorators.http import require_POST, require_http_methods
+import json
 
 # Create your views here.
 
@@ -19,20 +21,9 @@ def conversation_list(request):
 
 @login_required
 def conversation_detail(request, conversation_id):
-    conversation = get_object_or_404(Conversation, id=conversation_id)
+    conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
     
-    # Security check
-    if request.user not in conversation.participants.all():
-        messages.error(request, "You don't have access to this conversation.")
-        return redirect('messaging:conversation_list')
-    
-    # Mark messages as read
-    conversation.messages.filter(
-        sender=conversation.get_other_participant(request.user),
-        is_read=False
-    ).update(is_read=True)
-    
-    if request.method == 'POST':
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
@@ -40,19 +31,15 @@ def conversation_detail(request, conversation_id):
             message.sender = request.user
             message.save()
             
-            # Update conversation timestamp
-            conversation.save()  # This updates the updated_at field
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'status': 'success',
-                    'message': {
-                        'content': message.content,
-                        'created_at': message.created_at.strftime('%b %d, %Y, %I:%M %p'),
-                        'sender_name': message.sender.get_full_name(),
-                    }
-                })
-            return redirect('messaging:conversation_detail', conversation_id=conversation.id)
+            return JsonResponse({
+                'status': 'success',
+                'message': {
+                    'id': message.id,
+                    'content': message.content,
+                    'sender_id': message.sender.id,
+                    'created_at': message.created_at.isoformat()
+                }
+            })
     else:
         form = MessageForm()
     
@@ -118,3 +105,72 @@ def resolve_report(request, report_id):
     report.save()
     messages.success(request, 'Report resolved successfully.')
     return redirect('messaging:review_reports')
+
+@require_http_methods(["POST"])
+def send_message_ajax(request, conversation_id):
+    try:
+        # Get the conversation or return 404
+        conversation = get_object_or_404(Conversation, id=conversation_id)
+        
+        # Parse the JSON data from request body
+        data = json.loads(request.body)
+        content = data.get('content')
+        
+        if not content:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Message content is required'
+            }, status=400)
+        
+        # Create new message
+        message = Message.objects.create(
+            conversation=conversation,
+            sender=request.user,
+            content=content
+        )
+        
+        # Return the message data
+        return JsonResponse({
+            'status': 'success',
+            'message': {
+                'id': message.id,
+                'content': message.content,
+                'sender_id': message.sender.id,
+                'created_at': message.created_at.isoformat(),
+            }
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@login_required
+def get_messages(request, conversation_id):
+    try:
+        conversation = get_object_or_404(Conversation, id=conversation_id)
+        after_id = request.GET.get('after', 0)
+        
+        messages = conversation.messages.filter(id__gt=after_id).order_by('created_at')
+        
+        messages_data = [{
+            'id': message.id,
+            'content': message.content,
+            'sender_id': message.sender.id,
+            'created_at': message.created_at.isoformat(),
+        } for message in messages]
+        
+        return JsonResponse({
+            'status': 'success',
+            'messages': messages_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)

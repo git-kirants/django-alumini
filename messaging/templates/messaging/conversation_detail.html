@@ -23,7 +23,7 @@
             <!-- Messages -->
             <div class="px-6 py-4 h-96 overflow-y-auto" id="messages-container">
                 {% for message in conversation.messages.all %}
-                    <div class="mb-4 {% if message.sender == request.user %}ml-auto{% endif %} max-w-[75%]">
+                    <div class="mb-4 {% if message.sender == request.user %}ml-auto{% endif %} max-w-[75%]" data-message-id="{{ message.id }}">
                         <div class="{% if message.sender == request.user %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-900{% endif %} rounded-lg px-4 py-2">
                             {{ message.content }}
                         </div>
@@ -60,44 +60,86 @@
 </div>
 
 <script>
-    // Scroll to bottom of messages
     const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    const conversationId = {{ conversation.id }};
+    const currentUser = {{ request.user.id }};
+    let lastMessageId = document.querySelector('[data-message-id]')?.dataset.messageId || '0';
 
-    // Optional: Add real-time message sending with AJAX
+    // Append new message to container
+    function appendMessage(message) {
+        if (message.id <= lastMessageId) return;
+        
+        lastMessageId = message.id;
+        const isCurrentUser = message.sender_id === currentUser;
+        
+        const messageHtml = `
+            <div class="mb-4 ${isCurrentUser ? 'ml-auto' : ''} max-w-[75%]" data-message-id="${message.id}">
+                <div class="${isCurrentUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'} rounded-lg px-4 py-2">
+                    ${message.content}
+                </div>
+                <div class="flex items-center mt-1 ${isCurrentUser ? 'justify-end' : ''}">
+                    <span class="text-xs text-gray-500">
+                        ${new Date(message.created_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}
+                    </span>
+                    ${!isCurrentUser ? `
+                        <button class="ml-2 text-xs text-gray-500 hover:text-red-600"
+                                onclick="window.location.href='/messaging/report/${message.id}/'">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Form submission
     document.getElementById('message-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
+        const content = formData.get('content');  // Get the message content
 
-        fetch(window.location.href, {
+        if (!content.trim()) return;  // Don't send empty messages
+
+        fetch(`/messaging/send-message-ajax/${conversationId}/`, {
             method: 'POST',
-            body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: JSON.stringify({
+                content: content
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Add message to container
-                const messageHtml = `
-                    <div class="mb-4 ml-auto max-w-[75%]">
-                        <div class="bg-blue-600 text-white rounded-lg px-4 py-2">
-                            ${data.message.content}
-                        </div>
-                        <div class="flex items-center justify-end mt-1">
-                            <span class="text-xs text-gray-500">
-                                ${data.message.created_at}
-                            </span>
-                        </div>
-                    </div>
-                `;
-                messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                appendMessage(data.message);
                 form.reset();
             }
-        });
+        })
+        .catch(error => console.error('Error:', error));
     });
+
+    // Poll for new messages
+    function pollNewMessages() {
+        fetch(`/messaging/api/messages/${conversationId}/?after=${lastMessageId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    data.messages.forEach(message => appendMessage(message));
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Start polling
+    setInterval(pollNewMessages, 3000);
+
+    // Initial scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 </script>
-{% endblock %} 
+{% endblock %}
