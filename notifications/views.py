@@ -15,12 +15,14 @@ from .tasks import send_notification_email_task
 
 @login_required
 def notification_list(request):
-    notifications = request.user.notifications.all()
-    unread_count = notifications.filter(read=False).count()
-    return render(request, 'notifications/notification_list.html', {
+    notifications = request.user.notifications.all().order_by('-created_at')
+    unread_notifications_exist = notifications.filter(read=False).exists()
+    
+    context = {
         'notifications': notifications,
-        'unread_count': unread_count
-    })
+        'unread_notifications_exist': unread_notifications_exist,
+    }
+    return render(request, 'notifications/notification_list.html', context)
 
 @login_required
 def notification_preferences(request):

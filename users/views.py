@@ -108,15 +108,30 @@ def alumni_directory(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your profile has been updated!')
-            return redirect('users:alumni_directory')
-    else:
-        form = ProfileUpdateForm(instance=request.user)
+        # Get all the form data from request.POST
+        User.first_name = request.POST.get('first_name')
+        User.last_name = request.POST.get('last_name')
+        User.email = request.POST.get('email')
+        User.graduation_year = request.POST.get('graduation_year')
+        User.bio = request.POST.get('bio')
+        
+        if User.user_type == 'alumni':
+            User.current_company = request.POST.get('current_company')
+            User.current_job_title = request.POST.get('current_job_title')
+            User.years_of_experience = request.POST.get('years_of_experience')
+            User.industry = request.POST.get('industry')
+            User.portfolio_link = request.POST.get('portfolio_link')
+            User.skills = request.POST.get('skills')
+            User.certifications = request.POST.get('certifications')
+            User.achievements = request.POST.get('achievements')
+        
+        if 'profile_picture' in request.FILES:
+            User.profile_picture = request.FILES['profile_picture']
+        
+        User.save()
+        return redirect('users:profile')
     
-    return render(request, 'users/update_profile.html', {'form': form})
+    return render(request, 'users/update_profile.html', {'user': request.user})
 
 @login_required
 def user_profile(request, user_id):
@@ -143,3 +158,7 @@ def some_view(request):
     return redirect('users:alumni_directory')
     # Or use reverse()
     return redirect(reverse('users:alumni_directory'))
+
+
+def home(request):
+    return render(request, 'home.html')

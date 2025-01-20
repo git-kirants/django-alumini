@@ -10,4 +10,5 @@ urlpatterns = [
     path('mark-all-read/', views.mark_all_as_read, name='mark_all_read'),
     path('delete/<int:notification_id>/', views.delete_notification, name='delete'),
     path('monitor/', views.task_monitor, name='task_monitor'),
+    path('notifications/', views.notification_list, name='notification_list'),
 ] 

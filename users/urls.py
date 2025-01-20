@@ -5,7 +5,8 @@ from django.contrib.auth.views import LogoutView
 app_name = 'users'
 
 urlpatterns = [
-    path('', views.profile, name='profile'),  # Root path for users/
+    path('', views.profile, name='profile'), 
+    path('home/', views.home, name='home'),
     path('profile/', views.profile, name='profile'),
     path('profile/<int:user_id>/', views.user_profile, name='user_profile'),
     path('accounts/', include('django.contrib.auth.urls')),

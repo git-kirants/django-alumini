@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ action }} Event</h1>
+    <div class="max-w-2xl mx-auto bg-gray-800 rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold text-white mb-6">{{ action }} Event</h1>
         
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -14,7 +14,7 @@
             
             <div class="mt-6 flex justify-end space-x-4">
                 <a href="{% url 'event_list' %}" 
-                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                   class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
                     Cancel
                 </a>
                 <button type="submit" 

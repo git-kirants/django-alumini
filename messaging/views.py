@@ -52,19 +52,17 @@ def conversation_detail(request, conversation_id):
 def start_conversation(request, user_id):
     other_user = get_object_or_404(User, id=user_id)
     
-    # Check if conversation already exists
+    # Check if a conversation already exists between these users
     conversation = Conversation.objects.filter(
         participants=request.user
     ).filter(
         participants=other_user
     ).first()
     
-    if conversation:
-        return redirect('messaging:conversation_detail', conversation_id=conversation.id)
-    
-    # Create new conversation
-    conversation = Conversation.objects.create()
-    conversation.participants.add(request.user, other_user)
+    # If no conversation exists, create a new one
+    if not conversation:
+        conversation = Conversation.objects.create()
+        conversation.participants.add(request.user, other_user)
     
     return redirect('messaging:conversation_detail', conversation_id=conversation.id)
 

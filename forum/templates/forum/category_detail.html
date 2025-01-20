@@ -3,57 +3,77 @@
 {% block title %}{{ category.name }}{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
-                <p class="text-gray-600 mt-1">{{ category.description }}</p>
-            </div>
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Category Header -->
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-4xl font-bold text-white mb-2">{{ category.name }}</h1>
+            <p class="text-slate-400">{{ category.description }}</p>
+        </div>
+        {% if user.is_authenticated %}
             <a href="{% url 'forum:thread_create' category.id %}" 
-               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                <i class="fas fa-plus mr-2"></i>
                 New Thread
             </a>
-        </div>
+        {% endif %}
     </div>
 
+    <!-- Threads List -->
     <div class="space-y-4">
         {% for thread in threads %}
-            <div class="bg-white rounded-lg shadow-md p-6 {% if thread.is_pinned %}border-l-4 border-blue-600{% endif %}">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/[0.15] transition-all duration-300 
+                        {% if thread.is_pinned %}border-l-4 border-blue-500{% endif %}">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-3">
                             {% if thread.is_locked %}
-                                <span class="text-red-600">
+                                <span class="text-rose-400">
                                     <i class="fas fa-lock"></i>
                                 </span>
                             {% endif %}
                             {% if thread.is_pinned %}
-                                <span class="text-blue-600">
+                                <span class="text-blue-400">
                                     <i class="fas fa-thumbtack"></i>
                                 </span>
                             {% endif %}
-                            <h2 class="text-xl font-semibold text-gray-900">
+                            <h2 class="text-xl font-semibold text-white">
                                 <a href="{% url 'forum:thread_detail' thread.id %}" 
-                                   class="hover:text-blue-600">
+                                   class="hover:text-emerald-400 transition-colors duration-200">
                                     {{ thread.title }}
                                 </a>
                             </h2>
                         </div>
-                        <div class="mt-2 text-sm text-gray-600">
-                            Started by {{ thread.author.get_full_name|default:thread.author.username }}
-                            on {{ thread.created_at|date:"M d, Y" }}
+                        <div class="mt-2 flex items-center space-x-4 text-slate-400">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-circle mr-2"></i>
+                                {{ thread.author.get_full_name|default:thread.author.username }}
+                            </div>
+                            <div class="flex items-center">
+                                <i class="far fa-clock mr-2"></i>
+                                {{ thread.created_at|date:"M d, Y" }}
+                            </div>
                         </div>
                     </div>
-                    <div class="text-right text-sm text-gray-500">
-                        <p>{{ thread.replies.count }} replies</p>
-                        <p>{{ thread.views }} views</p>
+                    <div class="text-right space-y-1">
+                        <p class="flex items-center justify-end text-slate-400">
+                            <i class="far fa-comment mr-2"></i>
+                            {{ thread.replies.count }} replies
+                        </p>
+                        <p class="flex items-center justify-end text-slate-400">
+                            <i class="far fa-eye mr-2"></i>
+                            {{ thread.views }} views
+                        </p>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <div class="text-center py-8 text-gray-500">
-                No threads in this category yet.
+            <div class="text-center py-12">
+                <div class="w-20 h-20 mx-auto flex items-center justify-center rounded-full bg-white/10 mb-4">
+                    <i class="fas fa-comments text-3xl text-slate-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">No Threads Yet</h3>
+                <p class="text-slate-400">Be the first to start a discussion!</p>
             </div>
         {% endfor %}
     </div>
