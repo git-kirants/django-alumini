@@ -12,6 +12,13 @@ class Conversation(models.Model):
         return self.participants.exclude(id=user.id).first()
 
     @property
+    def other_participant(self):
+        """This will raise an error if called without proper context, but that's what we want"""
+        if not hasattr(self, '_request_user'):
+            raise ValueError("Request user not set on conversation")
+        return self.get_other_participant(self._request_user)
+
+    @property
     def last_message(self):
         return self.messages.order_by('-created_at').first()
 

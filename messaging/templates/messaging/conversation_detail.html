@@ -11,23 +11,25 @@
         <div class="bg-slate-700/50 backdrop-blur-lg px-6 py-4 border-b border-slate-600/50">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
-                    {% if conversation.last_message.sender.profile_picture %}
-                        <img src="{{ conversation.last_message.sender.profile_picture.url }}" 
-                                                     alt="{{ conversation.last_message.sender.get_full_name }}"  
-                             class="w-16 h-16 rounded-full object-cover border-4 border-slate-600">
-                    {% else %}
-                        <div class="w-16 h-16 rounded-full bg-slate-600 flex items-center justify-center border-4 border-slate-500">
-                            <i class="fas fa-user text-5xl text-slate-300"></i>
+                    {% with other_user=conversation.other_participant %}
+                        {% if other_user.profile_picture %}
+                            <img src="{{ other_user.profile_picture.url }}" 
+                                 alt="{{ other_user.get_full_name }}"  
+                                 class="w-16 h-16 rounded-full object-cover border-4 border-slate-600">
+                        {% else %}
+                            <div class="w-16 h-16 rounded-full bg-slate-600 flex items-center justify-center border-4 border-slate-500">
+                                <i class="fas fa-user text-5xl text-slate-300"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h1 class="text-xl font-semibold text-white">
+                                {{ other_user.get_full_name }}
+                            </h1>
+                            <p class="text-slate-300">
+                                {{ other_user.user_type|title }}
+                            </p>
                         </div>
-                    {% endif %}
-                    <div>
-                        <h1 class="text-xl font-semibold text-white">
-                            {{ conversation.last_message.sender.username }}
-                        </h1>
-                        <p class="text-slate-300">
-                            {{ conversation.last_message.sender.get_full_name }}
-                        </p>
-                    </div>
+                    {% endwith %}
                 </div>
                 <a href="{% url 'messaging:conversation_list' %}" 
                    class="p-2 text-slate-300 hover:text-white rounded-xl hover:bg-slate-600/50 transition-colors duration-200">

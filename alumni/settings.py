@@ -138,24 +138,24 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = 'profile'
-LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'users:login'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-app-specific-password'
-DEFAULT_FROM_EMAIL = 'Alumni Network <your-email@gmail.com>'
-
-# For development, you can use the console backend instead:
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Configuration
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'your-email@gmail.com'  # Set your email
+    EMAIL_HOST_PASSWORD = 'your-app-password'  # Set your app password
+    EMAIL_FROM_USER = 'your-email@gmail.com'
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'

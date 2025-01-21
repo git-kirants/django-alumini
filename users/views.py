@@ -5,8 +5,19 @@ from django.contrib import messages
 from .forms import CustomUserCreationForm, ProfileUpdateForm, StudentRegistrationForm, AlumniRegistrationForm
 from django.contrib.auth import get_user_model
 from messaging.models import Conversation
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.cache import never_cache
+from .utils import send_verification_email
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template import loader
+from django.core.mail.backends.console import EmailBackend
+from django.contrib.auth.views import PasswordResetView
 
 User = get_user_model()
 
@@ -17,7 +28,8 @@ def register_student(request):
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Account created successfully! You can now login.')
+            send_verification_email(request, user)
+            messages.success(request, 'Registration successful! Please check your email to verify your account.')
             return redirect('users:login')
     else:
         form = StudentRegistrationForm()
@@ -60,16 +72,17 @@ def profile(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if not user.email_verified:
+                messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
+                return redirect('users:login')
             login(request, user)
-            messages.success(request, 'Login successful!')
-            return redirect('users:profile')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'users/login.html')
+            return redirect('home')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'users/login.html', {'form': form})
 
 @never_cache
 def logout_view(request):
@@ -181,3 +194,46 @@ def some_view(request):
 
 def home(request):
     return render(request, 'home.html')
+
+def verify_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        
+        if default_token_generator.check_token(user, token):
+            user.email_verified = True
+            user.save()
+            return render(request, 'users/email_verified.html', {'success': True})
+        else:
+            return render(request, 'users/email_verified.html', {'success': False})
+            
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return render(request, 'users/email_verified.html', {'success': False})
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'users/password_reset_form.html'
+    email_template_name = 'users/email/password_reset_email.html'
+    html_email_template_name = 'users/email/password_reset_email.html'
+    subject_template_name = 'users/email/password_reset_subject.txt'
+    success_url = reverse_lazy('users:password_reset_done')
+
+    def form_valid(self, form):
+        form.save(
+            use_https=self.request.is_secure(),
+            from_email=None,
+            request=self.request,
+            email_template_name=self.email_template_name,
+            html_email_template_name=self.html_email_template_name,
+            subject_template_name=self.subject_template_name
+        )
+        return super().form_valid(form)
+
+class CustomPasswordResetDoneView(auth_views.PasswordResetDoneView):
+    template_name = 'users/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = 'users/password_reset_confirm.html'
+    success_url = reverse_lazy('users:password_reset_complete')
+
+class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    template_name = 'users/password_reset_complete.html'

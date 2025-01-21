@@ -22,6 +22,7 @@ def conversation_list(request):
 @login_required
 def conversation_detail(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
+    conversation._request_user = request.user
     
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         form = MessageForm(request.POST)

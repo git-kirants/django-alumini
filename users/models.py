@@ -48,6 +48,7 @@ class User(AbstractUser):
         choices=AVAILABILITY_CHOICES,
         blank=True
     )
+    email_verified = models.BooleanField(default=False)
 
     def clean(self):
         # Skip validation for admin users

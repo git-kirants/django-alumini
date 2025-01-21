@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5;">
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1e293b; margin: 0;">Alumni Network</h1>
+            <p style="color: #64748b; margin-top: 5px;">Email Verification</p>
+        </div>
+
+        <div style="color: #334155;">
+            <h2 style="margin-bottom: 20px;">Verify Your Email Address</h2>
+            <p>Hi {{ user.first_name }},</p>
+            <p>Thank you for registering with Alumni Network. Please click the button below to verify your email address:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ verification_link }}" 
+                   style="background: linear-gradient(to right, #2563eb, #059669);
+                          color: white;
+                          padding: 12px 24px;
+                          text-decoration: none;
+                          border-radius: 8px;
+                          display: inline-block;
+                          font-weight: 500;">
+                    Verify Email Address
+                </a>
+            </div>
+            
+            <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2563eb;">{{ verification_link }}</p>
+            
+            <p style="color: #64748b; font-size: 14px; margin-top: 30px;">This link will expire in 24 hours.</p>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 12px;">
+            <p>This is an automated message, please do not reply to this email.</p>
+            <p>&copy; {% now "Y" %} Alumni Network. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html> 

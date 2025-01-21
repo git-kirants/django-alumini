@@ -15,9 +15,10 @@ django-crispy-forms==2.3
 flower==2.0.1
 humanize==4.11.0
 kombu==5.4.2
-Pillow==11.1.0
-prometheus-client==0.21.1
-prompt-toolkit==3.0.48
+pillow==11.1.0
+prometheus_client==0.21.1
+prompt_toolkit==3.0.48
+psutil==6.1.1
 python-dateutil==2.9.0.post0
 pytz==2024.2
 redis==5.2.1
@@ -27,4 +28,4 @@ sqlparse==0.5.3
 tornado==6.4.2
 tzdata==2024.2
 vine==5.1.0
-wcwidth==0.2.13 
+wcwidth==0.2.13
