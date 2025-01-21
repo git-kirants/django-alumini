@@ -14,14 +14,14 @@
                 Sign in to your account to continue
             </p>
         </div>
-
+<!-- 
         {% if messages %}
-            {% with latest_message=messages|first %}
-                <div class="{% if latest_message.tags == 'error' %}bg-rose-500/20 border border-rose-500/50 text-rose-300{% else %}bg-emerald-500/20 border border-emerald-500/50 text-emerald-300{% endif %} px-4 py-3 rounded-xl relative backdrop-blur-sm" role="alert">
-                    <span class="block sm:inline">{{ latest_message }}</span>
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-rose-500/20 border border-rose-500/50 text-rose-300{% else %}bg-emerald-500/20 border border-emerald-500/50 text-emerald-300{% endif %} px-4 py-3 rounded-xl relative backdrop-blur-sm" role="alert">
+                    <span class="block sm:inline">{{ message }}</span>
                 </div>
-            {% endwith %}
-        {% endif %}
+            {% endfor %}
+        {% endif %} -->
 
         <form class="mt-8 space-y-6" method="POST">
             {% csrf_token %}

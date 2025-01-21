@@ -1,31 +1,67 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="flex">
-    <!-- Sidebar -->
-    <div class="w-64 bg-white shadow-lg h-screen fixed left-0">
-        <div class="p-4">
-            <h2 class="text-xl font-bold text-gray-800">Admin Panel</h2>
-        </div>
-        <nav class="mt-4">
-            <a href="{% url 'admin_panel:dashboard' %}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-100{% endif %}">
-                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-            </a>
-            <a href="{% url 'admin_panel:user_management' %}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 {% if request.resolver_match.url_name == 'user_management' %}bg-blue-100{% endif %}">
-                <i class="fas fa-users mr-2"></i>User Management
-            </a>
-            <a href="{% url 'admin_panel:generate_report' %}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 {% if request.resolver_match.url_name == 'generate_report' %}bg-blue-100{% endif %}">
-                <i class="fas fa-file-alt mr-2"></i>Reports
-            </a>
-            <a href="{% url 'admin_panel:system_metrics' %}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 {% if request.resolver_match.url_name == 'system_metrics' %}bg-blue-100{% endif %}">
-                <i class="fas fa-chart-line mr-2"></i>System Metrics
-            </a>
-        </nav>
+<div class="relative">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 bg-grid-slate-800/[0.1] bg-[size:60px_60px]"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-900/80"></div>
+    
+    <!-- Floating Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Main Content -->
-    <div class="ml-64 flex-1 p-8">
-        {% block admin_content %}{% endblock %}
+    <!-- Admin Content -->
+    <div class="relative">
+        <div class="p-6">
+            <h1 class="text-3xl font-bold text-white mb-8">Admin Panel</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Admin Navigation -->
+                <div class="space-y-4">
+                    <a href="{% url 'admin_panel:dashboard' %}" 
+                       class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-200 group {% if request.resolver_match.url_name == 'dashboard' %}bg-white/10 text-white{% endif %}">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600/20 to-emerald-600/20 group-hover:from-blue-600/30 group-hover:to-emerald-600/30">
+                            <i class="fas fa-gauge text-lg"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'admin_panel:user_management' %}" 
+                       class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-200 group {% if request.resolver_match.url_name == 'user_management' %}bg-white/10 text-white{% endif %}">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-600/20 to-pink-600/20 group-hover:from-purple-600/30 group-hover:to-pink-600/30">
+                            <i class="fas fa-users text-lg"></i>
+                        </div>
+                        <span>User Management</span>
+                    </a>
+
+                    <a href="{% url 'admin_panel:generate_report' %}" 
+                       class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-200 group {% if request.resolver_match.url_name == 'generate_report' %}bg-white/10 text-white{% endif %}">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-orange-600/20 to-red-600/20 group-hover:from-orange-600/30 group-hover:to-red-600/30">
+                            <i class="fas fa-file-alt text-lg"></i>
+                        </div>
+                        <span>Reports</span>
+                    </a>
+
+                    <a href="{% url 'admin_panel:system_metrics' %}" 
+                       class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-200 group {% if request.resolver_match.url_name == 'system_metrics' %}bg-white/10 text-white{% endif %}">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-teal-600/20 group-hover:from-emerald-600/30 group-hover:to-teal-600/30">
+                            <i class="fas fa-chart-line text-lg"></i>
+                        </div>
+                        <span>System Metrics</span>
+                    </a>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="md:col-span-3">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+                        {% block admin_content %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 

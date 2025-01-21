@@ -57,6 +57,13 @@ def delete_notification(request, notification_id):
     notification.delete()
     return JsonResponse({'status': 'success'})
 
+@login_required
+def clear_all_notifications(request):
+    if request.method == 'POST':
+        request.user.notifications.all().delete()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=405)
+
 @staff_member_required
 def task_monitor(request):
     # Get Celery inspector

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import User
 from django.core.validators import EmailValidator
+from django.utils.html import strip_tags
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -172,87 +173,83 @@ class ProfileUpdateForm(forms.ModelForm):
                 self.fields[field_name].help_text = help_text
 
 class StudentRegistrationForm(UserCreationForm):
-    email = forms.EmailField(
-        validators=[EmailValidator()],
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
-        })
-    )
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Mark required fields
-        required_fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
-        for field_name in required_fields:
-            if field_name in self.fields:
-                self.fields[field_name].required = True
-                if self.fields[field_name].label:  # Check if label exists
-                    self.fields[field_name].label += " *"
-                else:
-                    self.fields[field_name].label = field_name.title() + " *"
-        # Customize field labels and styling
-        field_labels = {
-            'username': "Username",
-            'email': "Email Address",
-            'first_name': "First Name",
-            'last_name': "Last Name",
-            'password1': "Password",
-            'password2': "Confirm Password"
-        }
-        
+        # Add styling to all fields
         for field_name, field in self.fields.items():
-            # Set labels
-            field.label = field_labels.get(field_name, field.label)
-            
-            # Update widget attributes
             field.widget.attrs.update({
-                'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
+                'class': 'w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
             })
-
-            # Make help text white
+            # Clean help text and format password requirements
             if field.help_text:
-                field.help_text = f'<span class="text-white/70 text-sm">{field.help_text}</span>'
+                help_text = strip_tags(field.help_text)
+                if field_name in ['password1']:
+                    # Split password requirements into bullet points
+                    requirements = [
+                        "Your password can't be too similar to your other personal information.",
+                        "Your password must contain at least 8 characters.",
+                        "Your password can't be a commonly used password.",
+                        "Your password can't be entirely numeric."
+                    ]
+                    field.help_text = "• " + "\n• ".join(requirements)
+                else:
+                    field.help_text = help_text
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.user_type = 'student'  # Set user type as student
+        if commit:
+            user.save()
+        return user
 
 class AlumniRegistrationForm(UserCreationForm):
-    email = forms.EmailField(
-        validators=[EmailValidator()],
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
-        })
-    )
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Mark required fields
-        required_fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
-        for field_name in required_fields:
-            if field_name in self.fields:
-                self.fields[field_name].required = True
-                if self.fields[field_name].label:  # Check if label exists
-                    self.fields[field_name].label += " *"
-                else:
-                    self.fields[field_name].label = field_name.title() + " *"
-        # Customize field labels and styling
-        field_labels = {
-            'username': "Username",
-            'email': "Email Address",
-            'first_name': "First Name",
-            'last_name': "Last Name",
-            'password1': "Password",
-            'password2': "Confirm Password"
-        }
-        
+        # Add styling to all fields
         for field_name, field in self.fields.items():
-            # Set labels
-            field.label = field_labels.get(field_name, field.label)
-            
-            # Update widget attributes
             field.widget.attrs.update({
-                'class': 'form-control w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
+                'class': 'w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
             })
-
-            # Make help text white
+            # Clean help text and format password requirements
             if field.help_text:
-                field.help_text = f'<span class="text-white/70 text-sm">{field.help_text}</span>'
+                help_text = strip_tags(field.help_text)
+                if field_name in ['password1']:
+                    # Split password requirements into bullet points
+                    requirements = [
+                        "Your password can't be too similar to your other personal information.",
+                        "Your password must contain at least 8 characters.",
+                        "Your password can't be a commonly used password.",
+                        "Your password can't be entirely numeric."
+                    ]
+                    field.help_text = "• " + "\n• ".join(requirements)
+                else:
+                    field.help_text = help_text
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.user_type = 'alumni'  # Set user type as alumni
+        if commit:
+            user.save()
+        return user

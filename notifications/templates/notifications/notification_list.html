@@ -6,58 +6,69 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-white">Notifications</h1>
-        {% if notifications and unread_notifications_exist %}
-            <button onclick="markAllAsRead()" 
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                <i class="fas fa-check-double mr-2"></i>
-                Mark All as Read
-            </button>
+        {% if notifications %}
+            <div class="flex space-x-4">
+                {% if unread_notifications_exist %}
+                    <button onclick="markAllAsRead()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-check-double mr-2"></i>
+                        Mark All as Read
+                    </button>
+                {% endif %}
+                <button onclick="clearAllNotifications()" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Clear All
+                </button>
+            </div>
         {% endif %}
     </div>
     
     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-        {% if notifications %}
-            <div class="space-y-4">
-                {% for notification in notifications %}
-                    <div id="notification-{{ notification.id }}" 
-                         class="bg-gray-700 rounded-lg shadow-md p-4 transition-all duration-200 hover:shadow-xl {% if not notification.read %}border-l-4 border-blue-500{% endif %}">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-grow">
-                                <h2 class="text-lg font-semibold text-white">{{ notification.title }}</h2>
-                                <p class="text-gray-300 mt-1">{{ notification.message }}</p>
-                                <div class="text-sm text-gray-400 mt-2">
-                                    {{ notification.created_at|timesince }} ago
+        <div id="notifications-container">
+            {% if notifications %}
+                <div class="space-y-4">
+                    {% for notification in notifications %}
+                        <div id="notification-{{ notification.id }}" 
+                             class="bg-gray-700 rounded-lg shadow-md p-4 transition-all duration-200 hover:shadow-xl {% if not notification.read %}border-l-4 border-blue-500{% endif %}">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-grow">
+                                    <h2 class="text-lg font-semibold text-white">{{ notification.title }}</h2>
+                                    <p class="text-gray-300 mt-1">{{ notification.message }}</p>
+                                    <div class="text-sm text-gray-400 mt-2">
+                                        {{ notification.created_at|timesince }} ago
+                                    </div>
+                                </div>
+                                <div class="flex space-x-4">
+                                    {% if not notification.read %}
+                                        <button onclick="markAsRead({{ notification.id }})" 
+                                                class="text-blue-400 hover:text-blue-300 transition-colors duration-200" 
+                                                aria-label="Mark notification as read">
+                                            <i class="fas fa-check mr-1"></i>
+                                            Mark as read
+                                        </button>
+                                    {% endif %}
+                                    <button onclick="deleteNotification({{ notification.id }})" 
+                                            class="text-red-400 hover:text-red-300 transition-colors duration-200" 
+                                            aria-label="Delete notification">
+                                        <i class="fas fa-trash-alt mr-1"></i>
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
-                            <div class="flex space-x-4">
-                                {% if not notification.read %}
-                                    <button onclick="markAsRead({{ notification.id }})" 
-                                            class="text-blue-400 hover:text-blue-300 transition-colors duration-200" 
-                                            aria-label="Mark notification as read">
-                                        <i class="fas fa-check mr-1"></i>
-                                        Mark as read
-                                    </button>
-                                {% endif %}
-                                <button onclick="deleteNotification({{ notification.id }})" 
-                                        class="text-red-400 hover:text-red-300 transition-colors duration-200" 
-                                        aria-label="Delete notification">
-                                    <i class="fas fa-trash-alt mr-1"></i>
-                                    Delete
-                                </button>
-                            </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center py-12">
-                <div class="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-bell-slash text-4xl text-gray-400"></i>
+                    {% endfor %}
                 </div>
-                <h3 class="text-xl font-semibold text-gray-300 mb-2">No Notifications</h3>
-                <p class="text-gray-400">You don't have any notifications at the moment.</p>
-            </div>
-        {% endif %}
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bell-slash text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Notifications</h3>
+                    <p class="text-gray-400">You don't have any notifications at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -174,6 +185,56 @@ function markAllAsRead() {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to mark all notifications as read. Please try again.');
+    });
+}
+
+function clearAllNotifications() {
+    if (!confirm('Are you sure you want to delete all notifications? This action cannot be undone.')) return;
+    
+    fetch('/notifications/clear-all/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Fade out all notifications
+            const notifications = document.querySelectorAll('[id^="notification-"]');
+            notifications.forEach(notification => {
+                notification.classList.add('opacity-0');
+            });
+            
+            // After fade animation, show empty state
+            setTimeout(() => {
+                const container = document.getElementById('notifications-container');
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bell-slash text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-300 mb-2">No Notifications</h3>
+                        <p class="text-gray-400">You don't have any notifications at the moment.</p>
+                    </div>
+                `;
+                
+                // Hide action buttons
+                const actionButtons = document.querySelector('.flex.space-x-4');
+                if (actionButtons) actionButtons.remove();
+            }, 200);
+            
+            // Update notification counter
+            const counter = document.querySelector('.fa-bell + span');
+            if (counter) counter.classList.add('hidden');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to clear notifications. Please try again.');
     });
 }
 </script>

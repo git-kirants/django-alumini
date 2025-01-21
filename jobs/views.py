@@ -206,3 +206,19 @@ def my_job_posts(request):
     return render(request, 'jobs/my_job_posts.html', {
         'jobs': jobs
     })
+
+@login_required
+def job_delete(request, pk):
+    job = get_object_or_404(JobPosting, pk=pk)
+    
+    # Check if user has permission to delete
+    if not (request.user.is_staff or request.user == job.posted_by):
+        messages.error(request, "You don't have permission to delete this job posting.")
+        return redirect('job_detail', pk=pk)
+    
+    if request.method == 'POST':
+        job.delete()
+        messages.success(request, 'Job posting deleted successfully.')
+        return redirect('job_list')
+    
+    return render(request, 'jobs/job_confirm_delete.html', {'job': job})

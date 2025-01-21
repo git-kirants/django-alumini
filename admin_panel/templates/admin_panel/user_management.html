@@ -1,20 +1,28 @@
 {% extends 'admin_panel/base_admin.html' %}
 
 {% block admin_content %}
-<div class="bg-white rounded-lg shadow p-6">
+<div class="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">User Management</h2>
+        <h2 class="text-2xl font-bold text-white">User Management</h2>
         <div class="flex space-x-4">
-            <form class="flex items-center">
-                <select name="user_type" class="form-select mr-2">
-                    <option value="">All Types</option>
-                    <option value="student" {% if request.GET.user_type == 'student' %}selected{% endif %}>Student</option>
-                    <option value="alumni" {% if request.GET.user_type == 'alumni' %}selected{% endif %}>Alumni</option>
-                    <option value="staff" {% if request.GET.user_type == 'staff' %}selected{% endif %}>Staff</option>
+            <form class="flex items-center space-x-3">
+                <select name="user_type" 
+                        class="px-4 py-2 rounded-xl bg-slate-800/50 border border-white/20 text-white 
+                               focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
+                               appearance-none cursor-pointer shadow-lg shadow-black/10">
+                    <option value="" class="bg-slate-800">All Types</option>
+                    <option value="student" {% if request.GET.user_type == 'student' %}selected{% endif %} class="bg-slate-800">Student</option>
+                    <option value="alumni" {% if request.GET.user_type == 'alumni' %}selected{% endif %} class="bg-slate-800">Alumni</option>
+                    <option value="staff" {% if request.GET.user_type == 'staff' %}selected{% endif %} class="bg-slate-800">Staff</option>
                 </select>
                 <input type="text" name="search" placeholder="Search users..." 
-                       class="form-input mr-2" value="{{ request.GET.search }}">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                       value="{{ request.GET.search }}"
+                       class="px-4 py-2 rounded-xl bg-slate-800/50 border border-white/20 text-white 
+                              placeholder-white/40 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
+                              shadow-lg shadow-black/10">
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 
+                               transition-colors duration-200 shadow-lg shadow-black/10">
                     <i class="fas fa-search"></i>
                 </button>
             </form>
@@ -22,49 +30,58 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-y divide-white/10">
             <thead>
                 <tr>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 bg-white/5 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-white/10">
                 {% for user in users %}
-                <tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition-colors duration-200">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="text-sm font-medium text-gray-900">
+                            <div class="text-sm font-medium text-white">
                                 {{ user.get_full_name|default:user.username }}
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {% if user.user_type == 'student' %}bg-blue-100 text-blue-800
-                            {% elif user.user_type == 'alumni' %}bg-green-100 text-green-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.user_type == 'student' %}bg-blue-500/20 text-blue-300
+                            {% elif user.user_type == 'alumni' %}bg-emerald-500/20 text-emerald-300
+                            {% else %}bg-gray-500/20 text-gray-300{% endif %}">
                             {{ user.get_user_type_display }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.date_joined|date }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white/60">{{ user.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white/60">{{ user.date_joined|date }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.is_active %}bg-emerald-500/20 text-emerald-300{% else %}bg-rose-500/20 text-rose-300{% endif %}">
                             {{ user.is_active|yesno:"Active,Inactive" }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                        <a href="{% url 'admin_panel:edit_user' user.id %}" 
+                           class="text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                            <i class="fas fa-edit mr-1"></i>Edit
+                        </a>
                         {% if user.is_active %}
-                            <a href="#" class="text-red-600 hover:text-red-900">Deactivate</a>
+                            <button onclick="toggleUserStatus({{ user.id }}, false)" 
+                                    class="text-rose-400 hover:text-rose-300 transition-colors duration-200">
+                                <i class="fas fa-user-slash mr-1"></i>Deactivate
+                            </button>
                         {% else %}
-                            <a href="#" class="text-green-600 hover:text-green-900">Activate</a>
+                            <button onclick="toggleUserStatus({{ user.id }}, true)" 
+                                    class="text-emerald-400 hover:text-emerald-300 transition-colors duration-200">
+                                <i class="fas fa-user-check mr-1"></i>Activate
+                            </button>
                         {% endif %}
                     </td>
                 </tr>
@@ -74,24 +91,78 @@
     </div>
 
     <!-- Pagination -->
-    <div class="mt-4">
-        <nav class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between">
-                {% if users.has_previous %}
-                    <a href="?page={{ users.previous_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
-                       class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>
-                {% endif %}
-                
-                {% if users.has_next %}
-                    <a href="?page={{ users.next_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
-                       class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>
-                {% endif %}
-            </div>
-        </nav>
+    <div class="mt-6 flex items-center justify-between">
+        <div class="flex-1 flex justify-between">
+            {% if users.has_previous %}
+                <a href="?page={{ users.previous_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
+                   class="px-4 py-2 bg-white/5 text-white rounded-xl hover:bg-white/10 
+                          transition-colors duration-200 shadow-lg shadow-black/10">
+                    Previous
+                </a>
+            {% endif %}
+            
+            {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}&user_type={{ request.GET.user_type }}&search={{ request.GET.search }}" 
+                   class="px-4 py-2 bg-white/5 text-white rounded-xl hover:bg-white/10 
+                          transition-colors duration-200 shadow-lg shadow-black/10">
+                    Next
+                </a>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleUserStatus(userId, setActive) {
+    if (!confirm(`Are you sure you want to ${setActive ? 'activate' : 'deactivate'} this user?`)) {
+        return;
+    }
+
+    fetch(`/admin-panel/users/${userId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            is_active: setActive
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Network response was not ok');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message || 'User status updated successfully.');
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'Failed to update user status.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Failed to update user status. Please try again.');
+    });
+}
+</script>
 {% endblock %} 

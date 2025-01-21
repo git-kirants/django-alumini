@@ -4,15 +4,23 @@ from .models import JobPosting, JobApplication
 class JobPostingForm(forms.ModelForm):
     class Meta:
         model = JobPosting
-        fields = [
-            'title', 'company', 'location', 'description', 'requirements',
-            'job_type', 'experience_level', 'salary_range', 'deadline',
-            'company_logo', 'remote_work'
-        ]
+        fields = ['title', 'company', 'company_logo', 'location', 'job_type', 'description', 'requirements', 'benefits', 'deadline']
         widgets = {
-            'deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'description': forms.Textarea(attrs={'rows': 4}),
-            'requirements': forms.Textarea(attrs={'rows': 4}),
+            'description': forms.Textarea(attrs={
+                'rows': 6,
+                'placeholder': 'Enter a detailed job description...'
+            }),
+            'requirements': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Enter job requirements (one per line)...'
+            }),
+            'benefits': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Enter job benefits (one per line)...'
+            }),
+            'deadline': forms.DateInput(attrs={
+                'type': 'date'
+            })
         }
 
 class JobApplicationForm(forms.ModelForm):

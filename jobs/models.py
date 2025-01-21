@@ -3,12 +3,13 @@ from django.utils import timezone
 from users.models import User
 
 class JobPosting(models.Model):
-    JOB_TYPES = (
+    JOB_TYPES = [
         ('full_time', 'Full Time'),
         ('part_time', 'Part Time'),
-        ('internship', 'Internship'),
         ('contract', 'Contract'),
-    )
+        ('internship', 'Internship'),
+        ('remote', 'Remote'),
+    ]
 
     EXPERIENCE_LEVELS = (
         ('entry', 'Entry Level'),
@@ -21,24 +22,31 @@ class JobPosting(models.Model):
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
+    job_type = models.CharField(max_length=20, choices=JOB_TYPES)
     description = models.TextField()
     requirements = models.TextField()
-    job_type = models.CharField(max_length=20, choices=JOB_TYPES)
+    benefits = models.TextField(blank=True)
     experience_level = models.CharField(max_length=20, choices=EXPERIENCE_LEVELS)
     salary_range = models.CharField(max_length=100, blank=True)
     posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_postings')
     created_at = models.DateTimeField(auto_now_add=True)
-    deadline = models.DateTimeField()
+    deadline = models.DateField()
     is_active = models.BooleanField(default=True)
     company_logo = models.ImageField(upload_to='company_logos/', null=True, blank=True)
     remote_work = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} at {self.company}"
+        return self.title
 
     @property
     def is_expired(self):
-        return timezone.now() > self.deadline
+        if self.deadline is None:
+            return False
+        return timezone.now().date() > self.deadline
+
+    class Meta:
+        ordering = ['-created_at']
 
 class JobApplication(models.Model):
     STATUS_CHOICES = (

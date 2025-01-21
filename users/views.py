@@ -16,15 +16,12 @@ def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.user_type = 'student'  # Set user type to student
-            user.save()
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('users:profile')
+            user = form.save()
+            messages.success(request, 'Account created successfully! You can now login.')
+            return redirect('users:login')
     else:
         form = StudentRegistrationForm()
-
+    
     return render(request, 'users/register_student.html', {'form': form})
 
 def register_alumni(request):

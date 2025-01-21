@@ -2,70 +2,240 @@
 
 {% block admin_content %}
 <div class="space-y-6">
-    <!-- User Metrics -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-bold mb-4">User Metrics</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for metric in metrics.user_metrics %}
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
-                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:0 }}</p>
-                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
+    <!-- System Overview -->
+    <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-white">System Overview</h2>
+            <form method="post" class="flex-shrink-0">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh Metrics</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Active Users -->
+            <div class="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-600/20 to-emerald-600/20">
+                        <i class="fas fa-users text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-white/60">Active Users</h3>
+                        <p class="text-2xl font-bold text-white">{{ metrics.user_metrics.active_users|default:"0" }}</p>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- System Load -->
+            <div class="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-600/20 to-pink-600/20">
+                        <i class="fas fa-microchip text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-white/60">System Load</h3>
+                        <p class="text-2xl font-bold text-white">{{ metrics.performance_metrics.system_load|floatformat:2 }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div class="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-teal-600/20">
+                        <i class="fas fa-bolt text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-white/60">Avg Response</h3>
+                        <p class="text-2xl font-bold text-white">{{ metrics.performance_metrics.avg_response_time|floatformat:0 }}ms</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Usage -->
+            <div class="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-orange-600/20 to-red-600/20">
+                        <i class="fas fa-memory text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-white/60">Memory Usage</h3>
+                        <p class="text-2xl font-bold text-white">{{ metrics.performance_metrics.memory_usage|floatformat:1 }}GB</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Event Metrics -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-bold mb-4">Event Metrics</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for metric in metrics.event_metrics %}
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
-                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:0 }}</p>
-                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+    <!-- Detailed Metrics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- User Activity -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">User Activity</h3>
+            <div class="space-y-4">
+                <!-- Total Users -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Total Users</span>
+                        {% if metrics.user_metrics.total_users_change %}
+                            <span class="text-sm {% if metrics.user_metrics.total_users_change > 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.user_metrics.total_users_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.user_metrics.total_users|default:"0" }}</span>
+                </div>
 
-    <!-- Donation Metrics -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-bold mb-4">Donation Metrics</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for metric in metrics.donation_metrics %}
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
-                <p class="mt-1 text-3xl font-semibold text-gray-900">${{ metric.value|floatformat:2 }}</p>
-                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+                <!-- Active Users -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Active Users (30 days)</span>
+                        {% if metrics.user_metrics.active_users_change %}
+                            <span class="text-sm {% if metrics.user_metrics.active_users_change > 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.user_metrics.active_users_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.user_metrics.active_users|default:"0" }}</span>
+                </div>
 
-    <!-- Performance Metrics -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-bold mb-4">System Performance</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for metric in metrics.performance_metrics %}
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <h3 class="text-sm font-medium text-gray-500">{{ metric.get_metric_type_display }}</h3>
-                <p class="mt-1 text-3xl font-semibold text-gray-900">{{ metric.value|floatformat:2 }}ms</p>
-                <p class="mt-1 text-sm text-gray-500">Last updated: {{ metric.timestamp|date:"M d, Y H:i" }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+                <!-- New Users -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">New Users (This Month)</span>
+                        {% if metrics.user_metrics.new_users_change %}
+                            <span class="text-sm {% if metrics.user_metrics.new_users_change > 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.user_metrics.new_users_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.user_metrics.new_users|default:"0" }}</span>
+                </div>
 
-    <!-- Refresh Button -->
-    <div class="flex justify-end">
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                <i class="fas fa-sync-alt mr-2"></i>Refresh Metrics
-            </button>
-        </form>
+                <!-- User Engagement -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Engagement Rate</span>
+                        {% if metrics.user_metrics.engagement_rate_change %}
+                            <span class="text-sm {% if metrics.user_metrics.engagement_rate_change > 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.user_metrics.engagement_rate_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.user_metrics.engagement_rate|default:"0" }}%</span>
+                </div>
+
+                <!-- User Types Distribution -->
+                <div class="mt-6">
+                    <h4 class="text-sm font-medium text-white/60 mb-3">User Types Distribution</h4>
+                    <div class="space-y-2">
+                        {% for type, count in metrics.user_metrics.user_types.items %}
+                        <div class="flex items-center">
+                            <div class="flex-1">
+                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-blue-500 to-emerald-500" 
+                                         style="width: {{ count.percentage|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex items-center space-x-2">
+                                <span class="text-sm text-white/60">{{ type }}</span>
+                                <span class="text-sm font-medium text-white">{{ count.count }}</span>
+                                <span class="text-xs text-white/40">({{ count.percentage|floatformat:1 }}%)</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Performance -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">System Performance</h3>
+            <div class="space-y-4">
+                <!-- CPU Usage -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">CPU Usage</span>
+                        {% if metrics.performance_metrics.cpu_usage_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.cpu_usage_change < 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.cpu_usage_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.cpu_usage|floatformat:1 }}%</span>
+                </div>
+
+                <!-- Database Queries -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Database Queries/sec</span>
+                        {% if metrics.performance_metrics.db_query_rate_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.db_query_rate_change < 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.db_query_rate_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.db_query_rate|floatformat:0 }}</span>
+                </div>
+
+                <!-- Cache Hit Rate -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Cache Hit Rate</span>
+                        {% if metrics.performance_metrics.cache_hit_rate_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.cache_hit_rate_change > 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.cache_hit_rate_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.cache_hit_rate|floatformat:1 }}%</span>
+                </div>
+
+                <!-- Error Rate -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Error Rate</span>
+                        {% if metrics.performance_metrics.error_rate_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.error_rate_change < 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.error_rate_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.error_rate|floatformat:2 }}%</span>
+                </div>
+
+                <!-- Network Traffic -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Network Traffic</span>
+                        {% if metrics.performance_metrics.network_traffic_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.network_traffic_change < 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.network_traffic_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.network_traffic|filesizeformat }}/s</span>
+                </div>
+
+                <!-- Disk Usage -->
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-white/60">Disk Usage</span>
+                        {% if metrics.performance_metrics.disk_usage_change %}
+                            <span class="text-sm {% if metrics.performance_metrics.disk_usage_change < 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                                {{ metrics.performance_metrics.disk_usage_change|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-white font-semibold">{{ metrics.performance_metrics.disk_usage|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 

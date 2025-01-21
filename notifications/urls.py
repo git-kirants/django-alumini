@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete/<int:notification_id>/', views.delete_notification, name='delete'),
     path('monitor/', views.task_monitor, name='task_monitor'),
     path('notifications/', views.notification_list, name='notification_list'),
+    path('clear-all/', views.clear_all_notifications, name='clear_all_notifications'),
 ] 
