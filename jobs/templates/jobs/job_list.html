@@ -4,141 +4,175 @@
 {% block title %}Jobs{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-white">Jobs</h1>
-        {% if user.is_staff %}
-        <a href="{% url 'job_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            Create Job
-        </a>
-        {% endif %}
-    </div>
-
-    <!-- Search and Filter -->
-    <div class="bg-gray-800 p-4 rounded-lg shadow mb-6">
-        <form method="get" class="flex flex-wrap gap-4">
-            <div class="flex-1 min-w-[200px]">
-                <input type="text" name="search" value="{{ search_query }}" 
-                       class="w-full px-4 py-2 border rounded-lg bg-gray-700 text-white" 
-                       placeholder="Search jobs...">
-            </div>
-            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                Filter
-            </button>
-        </form>
-    </div>
-
-    <!-- Jobs Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for job in jobs %}
-        <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
-            <!-- Company Logo -->
-            <div class="h-32 bg-gray-700 flex items-center justify-center p-4">
-                {% if job.company_logo %}
-                    <img src="{{ job.company_logo.url }}" 
-                         alt="{{ job.company }} logo" 
-                         class="max-h-full w-auto object-contain">
-                {% else %}
-                    <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center">
-                        <span class="text-2xl text-gray-400">
-                            {{ job.company|make_list|first|upper }}
-                        </span>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <div class="p-4">
-                <h2 class="text-xl font-semibold text-white">{{ job.title }}</h2>
-                <p class="text-gray-400 text-sm mb-2">{{ job.company }}</p>
-                <p class="text-gray-300 mb-4">{{ job.description|truncatewords:30 }}</p>
-                
-                
-                
-                <!-- Job Stats -->
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-gray-700/50 rounded-lg p-3">
-                        <div class="flex items-center text-sm text-gray-400">
-                            <i class="far fa-user mr-2"></i>
-                            <span>Applicants</span>
-                        </div>
-                        <p class="text-white font-semibold mt-1">
-                            {{ job.applications.count }}
-                        </p>
-                    </div>
-                    <div class="bg-gray-700/50 rounded-lg p-3">
-                        <div class="flex items-center text-sm text-gray-400">
-                            <i class="far fa-clock mr-2"></i>
-                            <span>Deadline</span>
-                        </div>
-                        <p class="text-white font-semibold mt-1">
-                            {{ job.deadline|date:"M d, Y" }}
-                        </p>
-                    </div>
+<div class="relative">
+    <!-- Background Grid Pattern -->
+    <div class="absolute inset-0 bg-grid-slate-800 bg-[size:40px_40px] opacity-10"></div>
+    
+    <div class="relative max-w-7xl mx-auto">
+        <!-- Header Section with Navigation -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Jobs</h1>
+                    <p class="mt-2 text-slate-400">Browse and apply for available positions</p>
                 </div>
-
-                <!-- Additional Info -->
-                <div class="flex flex-wrap gap-2 mb-4">
-                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
-                        <i class="fas fa-briefcase mr-1"></i>
-                        {{ job.get_job_type_display }}
-                    </span>
-                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
-                        <i class="fas fa-map-marker-alt mr-1"></i>
-                        {{ job.location }}
-                    </span>
-                    {% if job.remote_work %}
-                    <span class="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300">
-                        <i class="fas fa-home mr-1"></i>
-                        Remote
-                    </span>
+                
+                <!-- Action Buttons -->
+                <div class="mt-4 md:mt-0 flex flex-wrap gap-3">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff or user.is_recruiter %}
+                            <a href="{% url 'job_create' %}" 
+                               class="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl 
+                                      hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                                <i class="fas fa-plus"></i>
+                                <span>Post Job</span>
+                            </a>
+                            <a href="{% url 'my_job_posts' %}" 
+                               class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                                <i class="fas fa-briefcase"></i>
+                                <span>My Posted Jobs</span>
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'my_applications' %}" 
+                           class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                            <i class="fas fa-file-alt"></i>
+                            <span>My Applications</span>
+                        </a>
                     {% endif %}
                 </div>
-
-                <!-- Status Badge -->
-                {% if job.is_expired %}
-                <div class="mb-4">
-                    <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs">
-                        <i class="fas fa-exclamation-circle mr-1"></i>
-                        Expired
-                    </span>
-                </div>
-                {% endif %}
-
-                <a href="{% url 'job_detail' job.pk %}" 
-                   class="block text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                    View Details
-                </a>
             </div>
         </div>
-        {% empty %}
-        <div class="col-span-full text-center py-8 text-gray-500">
-            No jobs found matching your criteria.
-        </div>
-        {% endfor %}
-    </div>
 
-    <!-- Pagination -->
-    {% if jobs.has_other_pages %}
-    <div class="flex justify-center space-x-2 mt-8">
-        {% if jobs.has_previous %}
-        <a href="?page={{ jobs.previous_page_number }}&search={{ search_query }}" 
-           class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-            Previous
-        </a>
-        {% endif %}
-        
-        <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">
-            {{ jobs.number }}
-        </span>
-        
-        {% if jobs.has_next %}
-        <a href="?page={{ jobs.next_page_number }}&search={{ search_query }}" 
-           class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-            Next
-        </a>
+        <!-- Search and Filter -->
+        <div class="mb-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+            <form method="get" class="flex flex-wrap gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <input type="text" name="search" value="{{ search_query }}" 
+                           class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white 
+                                  focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
+                                  placeholder-white/40"
+                           placeholder="Search jobs...">
+                </div>
+                <button type="submit" 
+                        class="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Jobs Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for job in jobs %}
+            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden">
+                <!-- Company Logo -->
+                <div class="h-32 flex items-center justify-center p-4 border-b border-white/10">
+                    {% if job.company_logo %}
+                        <img src="{{ job.company_logo.url }}" 
+                             alt="{{ job.company }} logo" 
+                             class="max-h-full w-auto object-contain">
+                    {% else %}
+                        <div class="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-emerald-600/20 rounded-xl">
+                            <i class="fas fa-building text-2xl text-white/40"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-white">{{ job.title }}</h2>
+                    <p class="text-slate-400 text-sm mb-4">{{ job.company }}</p>
+                    
+                    <!-- Job Stats -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-white/5 rounded-xl p-3">
+                            <div class="flex items-center text-sm text-slate-400">
+                                <i class="far fa-user mr-2"></i>
+                                <span>Applicants</span>
+                            </div>
+                            <p class="text-white font-semibold mt-1">
+                                {{ job.applications.count }}
+                            </p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3">
+                            <div class="flex items-center text-sm text-slate-400">
+                                <i class="far fa-clock mr-2"></i>
+                                <span>Deadline</span>
+                            </div>
+                            <p class="text-white font-semibold mt-1">
+                                {{ job.deadline|date:"M d, Y" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-white/5 rounded-full text-sm text-slate-400">
+                            <i class="fas fa-briefcase mr-1"></i>
+                            {{ job.get_job_type_display }}
+                        </span>
+                        <span class="px-3 py-1 bg-white/5 rounded-full text-sm text-slate-400">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            {{ job.location }}
+                        </span>
+                        {% if job.remote_work %}
+                        <span class="px-3 py-1 bg-white/5 rounded-full text-sm text-slate-400">
+                            <i class="fas fa-home mr-1"></i>
+                            Remote
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status Badge -->
+                    {% if job.is_expired %}
+                    <div class="mb-4">
+                        <span class="px-3 py-1 bg-rose-500/20 text-rose-400 rounded-full text-sm">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            Expired
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'job_detail' job.pk %}" 
+                       class="block text-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl 
+                              hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 
+                              shadow-lg shadow-blue-600/20">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl">
+                <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600/20 to-emerald-600/20">
+                    <i class="fas fa-briefcase text-2xl text-white/60"></i>
+                </div>
+                <h3 class="text-lg font-medium text-white mb-2">No Jobs Found</h3>
+                <p class="text-slate-400">No jobs match your search criteria.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if jobs.has_other_pages %}
+        <div class="flex justify-center space-x-2 mt-8">
+            {% if jobs.has_previous %}
+            <a href="?page={{ jobs.previous_page_number }}&search={{ search_query }}" 
+               class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                Previous
+            </a>
+            {% endif %}
+            
+            <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl">
+                {{ jobs.number }}
+            </span>
+            
+            {% if jobs.has_next %}
+            <a href="?page={{ jobs.next_page_number }}&search={{ search_query }}" 
+               class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                Next
+            </a>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %} 

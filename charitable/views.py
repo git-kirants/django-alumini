@@ -85,7 +85,7 @@ def apply_scholarship(request, fund_id):
             application.fund = fund
             application.save()
             messages.success(request, 'Scholarship application submitted successfully!')
-            return redirect('my_applications')
+            return redirect('my_scholarship_applications')
     else:
         form = ScholarshipApplicationForm()
     return render(request, 'charitable/scholarship_application_form.html', {

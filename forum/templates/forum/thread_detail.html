@@ -4,22 +4,22 @@
 {% block title %}{{ thread.title }}{% endblock %}
 
 {% block content %}
-<div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
     <!-- Navigation -->
-    <div class="mb-8">
+    <div class="mb-6">
         <a href="{% url 'forum:category_detail' thread.category.id %}" 
            class="inline-flex items-center text-white hover:text-emerald-400 transition-colors duration-200">
             <i class="fas fa-arrow-left mr-2"></i>
-            Back to {{ thread.category.name }}
+            <span class="text-sm md:text-base">Back to {{ thread.category.name }}</span>
         </a>
     </div>
 
     <!-- Thread Header -->
-    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/10 mb-6">
-        <div class="flex justify-between items-start">
+    <div class="bg-white/10 backdrop-blur-lg rounded-xl md:rounded-2xl p-4 md:p-8 border border-white/10 mb-6">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-white mb-4">{{ thread.title }}</h1>
-                <div class="flex items-center space-x-4 text-white">
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">{{ thread.title }}</h1>
+                <div class="flex flex-wrap gap-3 md:gap-4 text-sm md:text-base text-white">
                     <div class="flex items-center">
                         <i class="fas fa-user-circle mr-2"></i>
                         {{ thread.author.get_full_name|default:thread.author.username }}
@@ -39,27 +39,27 @@
                 </div>
             </div>
             {% if user.is_staff %}
-                <div class="flex space-x-3">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="window.location.href='{% url 'forum:thread_pin' thread.id %}'"
-                            class="px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-200">
+                            class="px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-white/10 text-white text-sm hover:bg-white/20 transition-all duration-200">
                         <i class="fas fa-thumbtack mr-2"></i>
                         {% if thread.is_pinned %}Unpin{% else %}Pin{% endif %}
                     </button>
                     <button onclick="window.location.href='{% url 'forum:thread_lock' thread.id %}'"
-                            class="px-4 py-2 rounded-xl bg-white/10 text-rose-400 hover:bg-white/20 transition-all duration-200">
+                            class="px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-white/10 text-rose-400 text-sm hover:bg-white/20 transition-all duration-200">
                         <i class="fas {% if thread.is_locked %}fa-lock-open{% else %}fa-lock{% endif %} mr-2"></i>
                         {% if thread.is_locked %}Unlock{% else %}Lock{% endif %}
                     </button>
                 </div>
             {% endif %}
         </div>
-        <div class="mt-6 prose prose-invert max-w-none text-white">
+        <div class="mt-6 prose prose-invert max-w-none text-white text-sm md:text-base">
             {{ thread.content|linebreaks }}
         </div>
     </div>
 
     <!-- Main Content Area with Fixed Height -->
-    <div class="relative h-[calc(100vh-24rem)]">
+    <div class="relative h-[calc(100vh-20rem)] md:h-[calc(100vh-24rem)]">
         <!-- Replies Container with Scroll -->
         <div class="absolute inset-0 space-y-6 overflow-y-auto pb-32" id="repliesContainer">
             <!-- Latest Reply Preview -->
@@ -194,6 +194,23 @@
 
     ::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.8); /* Color of the thumb on hover */
+    }
+
+    @media (max-width: 768px) {
+        #repliesContainer {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+        
+        textarea {
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+        
+        button, 
+        a {
+            min-height: 44px; /* Better touch targets */
+            min-width: 44px;
+        }
     }
 </style>
 
