@@ -28,7 +28,7 @@
 
                 <!-- Messages -->
                 {% if messages %}
-                    {% for message in messages %}
+                    {% for message in messages|slice:":1" %}
                         <div class="mb-6 p-4 rounded-lg {% if message.tags == 'error' %}bg-rose-500/20 text-rose-200 border border-rose-500/20{% else %}bg-emerald-500/20 text-emerald-200 border border-emerald-500/20{% endif %}">
                             <div class="flex items-center">
                                 {% if message.tags == 'error' %}
@@ -38,7 +38,6 @@
                                 {% endif %}
                                 {{ message }}
                             </div>
-                            
                         </div>
                     {% endfor %}
                 {% endif %}

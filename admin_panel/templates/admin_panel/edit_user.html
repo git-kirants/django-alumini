@@ -98,7 +98,7 @@
 
 {% if messages %}
 <div class="mt-4">
-    {% for message in messages %}
+    {% for message in messages|slice:":1" %}
     <div class="p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-500/20 text-emerald-300{% else %}bg-rose-500/20 text-rose-300{% endif %}">
         {{ message }}
     </div>
