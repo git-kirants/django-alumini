@@ -27,7 +27,9 @@ def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate until email is verified
+            user.save()
             send_verification_email(request, user)
             messages.success(request, 'Registration successful! Please check your email to verify your account.')
             return redirect('users:login')
@@ -42,9 +44,10 @@ def register_alumni(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.user_type = 'alumni'
-            user.email_verified = False  # Set email as unverified initially
+            user.email_verified = False
+            user.is_active = False  # Deactivate until email is verified
             user.save()
-            send_verification_email(request, user)  # Send verification email
+            send_verification_email(request, user)
             messages.success(request, 'Registration successful! Please check your email to verify your account.')
             return redirect('users:login')
     else:
@@ -76,14 +79,31 @@ def login_view(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            # Allow admins to login regardless of email verification
+            if user.is_staff or user.is_superuser:
+                login(request, user)
+                return redirect('home')
+            # For non-admin users, check email verification
             if not user.email_verified:
-                messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
+                messages.error(
+                    request, 
+                    'Your email address is not verified. Please check your inbox for the verification link. '
+                    'If you did not receive the email, you can request a new verification link from the login page.'
+                )
+                # Store the email in session for potential resend
+                request.session['pending_verification_email'] = user.email
                 return redirect('users:login')
             login(request, user)
             return redirect('home')
     else:
         form = AuthenticationForm()
-    return render(request, 'users/login.html', {'form': form})
+    
+    # Check if there's a pending verification email
+    pending_email = request.session.get('pending_verification_email')
+    return render(request, 'users/login.html', {
+        'form': form,
+        'pending_verification_email': pending_email
+    })
 
 @never_cache
 def logout_view(request):
@@ -188,14 +208,7 @@ def user_profile(request, user_id):
     })
 
 def some_view(request):
-    # Change this
-    return redirect('alumni_directory')
-    
-    # To this
     return redirect('users:alumni_directory')
-    # Or use reverse()
-    return redirect(reverse('users:alumni_directory'))
-
 
 def home(request):
     return render(request, 'home.html')
@@ -207,13 +220,35 @@ def verify_email(request, uidb64, token):
         
         if default_token_generator.check_token(user, token):
             user.email_verified = True
+            # is_active will be set automatically in save() method
             user.save()
+            messages.success(request, 'Your email has been verified! You can now log in.')
             return render(request, 'users/email_verified.html', {'success': True})
         else:
+            messages.error(request, 'The verification link is invalid or has expired.')
             return render(request, 'users/email_verified.html', {'success': False})
             
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        messages.error(request, 'The verification link is invalid or has expired.')
         return render(request, 'users/email_verified.html', {'success': False})
+
+def resend_verification(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email, email_verified=False)
+            send_verification_email(request, user)
+            messages.success(
+                request, 
+                'A new verification link has been sent to your email address. Please check your inbox.'
+            )
+        except User.DoesNotExist:
+            messages.error(
+                request, 
+                'We could not find an unverified account with this email address. '
+                'Please make sure you entered the correct email.'
+            )
+    return redirect('users:login')
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'users/password_reset_form.html'

@@ -90,6 +90,10 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.clean()
+        # Set is_active based on email verification status
+        # Staff and superusers are always active
+        if not (self.is_staff or self.is_superuser):
+            self.is_active = self.email_verified
         super().save(*args, **kwargs)
 
     def __str__(self):
