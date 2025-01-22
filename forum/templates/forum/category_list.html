@@ -80,33 +80,31 @@
                     {% if category.threads.all %}
                         <div class="mt-4 space-y-2">
                             <h3 class="text-xs md:text-sm font-semibold text-slate-300 uppercase tracking-wider">Recent Discussions</h3>
-                            <div class="space-y-2">
-                                {% for thread in category.threads.all|slice:":3" %}
-                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center py-2 px-3 bg-black/10 rounded-lg hover:bg-black/20 transition-colors duration-200">
-                                        <div class="mb-2 md:mb-0">
-                                            <a href="{% url 'forum:thread_detail' thread.id %}" 
-                                               class="text-sm md:text-base text-white hover:text-emerald-400 transition-colors duration-200 font-medium">
+                            {% for thread in category.threads.all|slice:":3" %}
+                                <div class="flex items-center justify-between py-2 border-t border-white/5">
+                                    <div class="flex items-center space-x-3">
+                                        {% if thread.author.profile_picture %}
+                                            <img src="{{ thread.author.profile_picture.url }}" alt="{{ thread.author.get_full_name|default:thread.author.username }}" 
+                                                 class="w-8 h-8 rounded-full object-cover">
+                                        {% else %}
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600/20 to-emerald-600/20 flex items-center justify-center">
+                                                <i class="fas fa-user text-emerald-400"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <a href="{% url 'forum:thread_detail' thread.id %}" class="text-white hover:text-emerald-400 transition-colors duration-200">
                                                 {{ thread.title }}
                                             </a>
-                                            <div class="text-xs md:text-sm text-slate-400 flex flex-wrap items-center gap-2 mt-1">
-                                                <span class="flex items-center">
-                                                    <i class="fas fa-user-circle mr-1 text-emerald-400/60"></i>
+                                            <div class="text-sm text-slate-400">
+                                                by <a href="{% url 'users:user_profile' thread.author.id %}" class="text-emerald-400 hover:text-emerald-300 transition-colors duration-200">
                                                     {{ thread.author.get_full_name|default:thread.author.username }}
-                                                </span>
-                                                <span class="hidden md:inline">•</span>
-                                                <span class="flex items-center">
-                                                    <i class="far fa-clock mr-1 text-emerald-400/60"></i>
-                                                    {{ thread.created_at|date:"M d, Y" }}
-                                                </span>
+                                                </a>
                                             </div>
                                         </div>
-                                        <div class="flex items-center text-xs md:text-sm text-slate-400">
-                                            <i class="fas fa-reply mr-1 text-emerald-400/60"></i>
-                                            {{ thread.replies.count }}
-                                        </div>
                                     </div>
-                                {% endfor %}
-                            </div>
+                                    <span class="text-sm text-slate-400">{{ thread.created_at|date:"M d" }}</span>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% endif %}
                 </div>

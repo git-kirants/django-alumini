@@ -43,7 +43,7 @@ def event_create(request):
         form = EventForm(request.POST, request.FILES)
         if form.is_valid():
             event = form.save(commit=False)
-            event.organizer = request.user
+            event.created_by = request.user
             event.save()
             
             # Notify all users about new event
