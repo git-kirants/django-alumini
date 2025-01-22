@@ -3,47 +3,227 @@
 
 {% block title %}Update Application Status{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Dark theme form styles */
+    .form-control {
+        @apply bg-white/5 border-white/10 text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500;
+    }
+    
+    /* Custom select styling */
+    .form-select,
+    select.form-control {
+        @apply h-12 bg-white/5 border-white/10 text-white appearance-none cursor-pointer pr-10;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+
+    /* Style dropdown options */
+    select.form-control option {
+        @apply bg-slate-700 text-white px-4 py-3;
+        margin: 4px 0;
+    }
+
+    /* Hover state for options */
+    select.form-control option:hover,
+    select.form-control option:focus {
+        @apply bg-slate-600;
+    }
+
+    /* Wrapper for select to add custom arrow */
+    .select-wrapper {
+        @apply relative;
+    }
+
+    .select-wrapper::after {
+        content: '';
+        @apply absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .control-label {
+        @apply text-slate-400 !important;
+    }
+
+    .form-text {
+        @apply text-slate-400 !important;
+    }
+
+    /* Status colors in dropdown with background */
+    select.form-control option[value="pending"] { 
+        @apply text-yellow-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="reviewing"] { 
+        @apply text-blue-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="shortlisted"] { 
+        @apply text-purple-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="interviewed"] { 
+        @apply text-indigo-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="offered"] { 
+        @apply text-green-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="accepted"] { 
+        @apply text-emerald-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="rejected"] { 
+        @apply text-red-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+    select.form-control option[value="withdrawn"] { 
+        @apply text-slate-300 bg-slate-700/90;
+        text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    }
+
+    /* Firefox specific styles */
+    @-moz-document url-prefix() {
+        select.form-control {
+            @apply bg-slate-700 text-white;
+        }
+        select.form-control option {
+            @apply bg-slate-700;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Update Application Status</h1>
-        
-        <div class="mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="relative">
+    <!-- Background Grid Pattern -->
+    <div class="absolute inset-0 bg-grid-slate-800 bg-[size:40px_40px] opacity-10"></div>
+    
+    <div class="relative max-w-2xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h2 class="text-sm font-semibold text-gray-600 uppercase">Applicant</h2>
-                    <p class="text-gray-800">{{ application.applicant.get_full_name }}</p>
+                    <h1 class="text-3xl font-bold text-white">Update Application Status</h1>
+                    <p class="mt-2 text-slate-400">{{ application.job.title }}</p>
                 </div>
-                <div>
-                    <h2 class="text-sm font-semibold text-gray-600 uppercase">Position</h2>
-                    <p class="text-gray-800">{{ application.job.title }}</p>
+                
+                <div class="mt-4 md:mt-0">
+                    <a href="{% url 'manage_applications' application.job.pk %}" 
+                       class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Applications</span>
+                    </a>
                 </div>
-                <div>
-                    <h2 class="text-sm font-semibold text-gray-600 uppercase">Applied Date</h2>
-                    <p class="text-gray-800">{{ application.applied_at|date:"F j, Y" }}</p>
-                </div>
-                <div>
-                    <h2 class="text-sm font-semibold text-gray-600 uppercase">Current Status</h2>
-                    <p class="text-gray-800">{{ application.get_status_display }}</p>
+            </div>
+        </div>
+
+        <!-- Application Details Card -->
+        <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden mb-6">
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Applicant Info -->
+                    <div>
+                        <h2 class="text-sm font-medium text-slate-400 uppercase mb-2">Applicant</h2>
+                        <div class="flex items-center">
+                            {% if application.applicant.profile_picture %}
+                                <img class="h-10 w-10 rounded-xl object-cover" 
+                                     src="{{ application.applicant.profile_picture.url }}" 
+                                     alt="{{ application.applicant.get_full_name }}">
+                            {% else %}
+                                <div class="h-10 w-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-emerald-600/20">
+                                    <i class="fas fa-user text-white/60"></i>
+                                </div>
+                            {% endif %}
+                            <div class="ml-3">
+                                <p class="text-white font-medium">{{ application.applicant.get_full_name }}</p>
+                                <p class="text-sm text-slate-400">{{ application.applicant.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Position Info -->
+                    <div>
+                        <h2 class="text-sm font-medium text-slate-400 uppercase mb-2">Position</h2>
+                        <p class="text-white">{{ application.job.title }}</p>
+                        <p class="text-sm text-slate-400">{{ application.job.company }}</p>
+                    </div>
+
+                    <!-- Applied Date -->
+                    <div>
+                        <h2 class="text-sm font-medium text-slate-400 uppercase mb-2">Applied Date</h2>
+                        <p class="text-white">{{ application.applied_at|date:"F j, Y" }}</p>
+                    </div>
+
+                    <!-- Current Status -->
+                    <div>
+                        <h2 class="text-sm font-medium text-slate-400 uppercase mb-2">Current Status</h2>
+                        <span class="inline-flex px-3 py-1 text-sm rounded-full
+                            {% if application.status == 'pending' %}bg-yellow-500/20 text-yellow-400
+                            {% elif application.status == 'reviewing' %}bg-blue-500/20 text-blue-400
+                            {% elif application.status == 'shortlisted' %}bg-purple-500/20 text-purple-400
+                            {% elif application.status == 'interviewed' %}bg-indigo-500/20 text-indigo-400
+                            {% elif application.status == 'offered' %}bg-green-500/20 text-green-400
+                            {% elif application.status == 'accepted' %}bg-emerald-500/20 text-emerald-400
+                            {% elif application.status == 'rejected' %}bg-red-500/20 text-red-400
+                            {% elif application.status == 'withdrawn' %}bg-slate-500/20 text-slate-400{% endif %}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            
-            <div class="mt-6 flex justify-end space-x-4">
-                <a href="{% url 'manage_applications' application.job.pk %}" 
-                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
-                    Cancel
-                </a>
-                <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Update Status
-                </button>
+        <!-- Update Status Form -->
+        <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-white mb-6">Update Status</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="space-y-4">
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-400 mb-2">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.name == 'status' %}
+                                    <div class="select-wrapper">
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <p class="mt-1 text-sm text-slate-400">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-4">
+                        <a href="{% url 'manage_applications' application.job.pk %}" 
+                           class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                            <i class="fas fa-times"></i>
+                            <span>Cancel</span>
+                        </a>
+                        <button type="submit" 
+                                class="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20">
+                            <i class="fas fa-check"></i>
+                            <span>Update Status</span>
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

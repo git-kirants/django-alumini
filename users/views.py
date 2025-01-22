@@ -41,11 +41,12 @@ def register_alumni(request):
         form = AlumniRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.user_type = 'alumni'  # Set user type to alumni
+            user.user_type = 'alumni'
+            user.email_verified = False  # Set email as unverified initially
             user.save()
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('users:profile')
+            send_verification_email(request, user)  # Send verification email
+            messages.success(request, 'Registration successful! Please check your email to verify your account.')
+            return redirect('users:login')
     else:
         form = AlumniRegistrationForm()
 
@@ -119,7 +120,11 @@ def profile_view(request, username=None):
 
 @login_required
 def alumni_directory(request):
-    alumni = User.objects.filter(user_type='alumni', is_active=True).order_by('last_name')
+    alumni = User.objects.filter(
+        user_type='alumni',
+        is_active=True,
+        email_verified=True
+    ).order_by('last_name')
     return render(request, 'users/alumni_directory.html', {'alumni': alumni})
 
 @login_required

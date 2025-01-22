@@ -20,7 +20,7 @@
                 <!-- Action Buttons -->
                 <div class="mt-4 md:mt-0 flex flex-wrap gap-3">
                     {% if user.is_authenticated %}
-                        {% if user.is_staff or user.is_recruiter %}
+                        {% if user.is_staff or user.is_recruiter or user.user_type == 'alumni' %}
                             <a href="{% url 'job_create' %}" 
                                class="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl 
                                       hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-blue-600/20">
@@ -114,6 +114,10 @@
                             <i class="fas fa-map-marker-alt mr-1"></i>
                             {{ job.location }}
                         </span>
+                        <span class="px-3 py-1 bg-white/5 rounded-full text-sm text-slate-400">
+                            <i class="fas fa-layer-group mr-1"></i>
+                            {{ job.get_experience_level_display }}
+                        </span>
                         {% if job.remote_work %}
                         <span class="px-3 py-1 bg-white/5 rounded-full text-sm text-slate-400">
                             <i class="fas fa-home mr-1"></i>
@@ -132,12 +136,20 @@
                     </div>
                     {% endif %}
 
-                    <a href="{% url 'job_detail' job.pk %}" 
-                       class="block text-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl 
-                              hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 
-                              shadow-lg shadow-blue-600/20">
-                        View Details
-                    </a>
+                    <div class="flex gap-2">
+                        <a href="{% url 'job_detail' job.pk %}" 
+                           class="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-xl 
+                                  hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 
+                                  shadow-lg shadow-blue-600/20">
+                            View Details
+                        </a>
+                        {% if user.is_authenticated and job.posted_by == user %}
+                            <a href="{% url 'job_edit' job.pk %}" 
+                               class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% empty %}

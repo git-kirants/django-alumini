@@ -14,7 +14,15 @@ import json
 
 @login_required
 def conversation_list(request):
-    conversations = request.user.conversations.all()
+    conversations = request.user.conversations.all().prefetch_related(
+        'participants',
+        'messages'
+    ).order_by('-updated_at')
+
+    # Add request user to each conversation for template context
+    for conversation in conversations:
+        conversation._request_user = request.user
+
     return render(request, 'messaging/conversation_list.html', {
         'conversations': conversations
     })
@@ -23,6 +31,13 @@ def conversation_list(request):
 def conversation_detail(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
     conversation._request_user = request.user
+    
+    # Mark all unread messages in this conversation as read
+    Message.objects.filter(
+        conversation=conversation,
+        sender__in=conversation.participants.exclude(id=request.user.id),
+        is_read=False
+    ).update(is_read=True)
     
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         form = MessageForm(request.POST)
@@ -44,8 +59,12 @@ def conversation_detail(request, conversation_id):
     else:
         form = MessageForm()
     
+    # Get ordered messages
+    messages = conversation.messages.all().order_by('created_at')
+    
     return render(request, 'messaging/conversation_detail.html', {
         'conversation': conversation,
+        'messages': messages,
         'form': form
     })
 
@@ -153,15 +172,26 @@ def send_message_ajax(request, conversation_id):
 def get_messages(request, conversation_id):
     try:
         conversation = get_object_or_404(Conversation, id=conversation_id)
-        after_id = request.GET.get('after', 0)
+        last_message_id = request.GET.get('after', '0')
         
-        messages = conversation.messages.filter(id__gt=after_id).order_by('created_at')
+        # Convert to int, defaulting to 0 if invalid
+        try:
+            last_message_id = int(last_message_id)
+        except (ValueError, TypeError):
+            last_message_id = 0
+        
+        # Get messages after the last seen message ID, ordered by created_at
+        messages = conversation.messages.filter(
+            id__gt=last_message_id
+        ).select_related('sender').order_by('created_at')
         
         messages_data = [{
             'id': message.id,
             'content': message.content,
             'sender_id': message.sender.id,
+            'sender_name': message.sender.get_full_name() or message.sender.username,
             'created_at': message.created_at.isoformat(),
+            'is_sender': message.sender_id == request.user.id
         } for message in messages]
         
         return JsonResponse({

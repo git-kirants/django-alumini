@@ -28,7 +28,7 @@
                             <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                                 {{ job.get_job_type_display }}
                             </span>
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm">
+                            <span class="px-3 py-1 bg-purple-200 text-purple-900 rounded-full text-sm font-semibold">
                                 {{ job.get_experience_level_display }}
                             </span>
                         </div>
@@ -118,16 +118,6 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-white">Benefits</h3>
-                        <ul class="list-disc list-inside text-gray-300 space-y-1">
-                            {% for benefit in job.benefits.all %}
-                            <li>{{ benefit }}</li>
-                            {% empty %}
-                            <li>No benefits listed.</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>
@@ -135,34 +125,87 @@
         <!-- Application Section -->
         <div class="mt-6">
             {% if user.is_authenticated %}
-                {% if user_applied %}
-                    <div class="flex items-center justify-between bg-green-100 p-4 rounded-lg">
-                        <span class="text-green-800">
-                            <i class="fas fa-check-circle mr-2"></i>
-                            You have applied for this position
-                        </span>
-                        <form method="post" action="{% url 'job_withdraw' job.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" 
-                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                                Withdraw Application
-                            </button>
-                        </form>
+                {% if user.is_staff or job.posted_by == user %}
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between bg-white/5 p-4 rounded-lg">
+                            <div class="text-white">
+                                <span class="font-semibold">{{ job.applications.count }}</span> 
+                                application{{ job.applications.count|pluralize }}
+                            </div>
+                            <a href="{% url 'manage_applications' job.pk %}" 
+                               class="px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white rounded-lg 
+                                      hover:from-blue-700 hover:to-emerald-700 transition-all duration-200">
+                                <i class="fas fa-users mr-2"></i>
+                                View Applications
+                            </a>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{% url 'job_edit' job.pk %}" 
+                               class="flex-1 text-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200">
+                                <i class="fas fa-edit mr-2"></i>
+                                Edit Job
+                            </a>
+                            <a href="{% url 'job_delete' job.pk %}" 
+                               class="flex-1 text-center px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all duration-200">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Delete Job
+                            </a>
+                        </div>
                     </div>
                 {% else %}
-                    <form method="post" action="{% url 'job_apply' job.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" 
-                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Apply for Position
-                        </button>
-                    </form>
+                    {% if user_has_applied %}
+                        <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2 text-white">
+                                    <i class="fas fa-check-circle text-emerald-400"></i>
+                                    <span>You have already applied for this position</span>
+                                </div>
+                                <a href="{% url 'my_applications' %}" 
+                                   class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>View Your Application</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% if job.deadline|date:'Y-m-d' < now|date:'Y-m-d' %}
+                            <div class="bg-white/5 backdrop-blur-lg border border-red-500/10 rounded-xl p-4">
+                                <div class="flex items-center space-x-2 text-red-400">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>The application deadline for this position has passed.</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'job_apply' job.pk %}" 
+                               class="block w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white text-center rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20">
+                                <span class="flex items-center justify-center space-x-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Apply for Position</span>
+                                </span>
+                            </a>
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
             {% else %}
-                <a href="{% url 'login' %}?next={{ request.path }}" 
-                   class="block text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Login to Apply
-                </a>
+                {% if job.deadline|date:'Y-m-d' < now|date:'Y-m-d' %}
+                    <div class="bg-white/5 backdrop-blur-lg border border-red-500/10 rounded-xl p-4">
+                        <div class="flex items-center space-x-2 text-red-400">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>The application deadline for this position has passed.</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4">
+                        <div class="text-center">
+                            <p class="text-slate-400 mb-4">Please log in to apply for this position</p>
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" 
+                               class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login to Apply</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>

@@ -176,7 +176,6 @@ class StudentRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
@@ -217,10 +216,32 @@ class AlumniRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
+    current_job_title = forms.CharField(required=True)
+    current_company = forms.CharField(required=True)
+    industry = forms.ChoiceField(
+        choices=User.INDUSTRY_CHOICES,
+        required=True
+    )
+    years_of_experience = forms.IntegerField(required=True)
+    skills = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=True,
+        help_text="Enter your skills separated by commas"
+    )
+    mentorship_availability = forms.ChoiceField(
+        choices=User.AVAILABILITY_CHOICES,
+        required=True,
+        help_text="Select your availability for mentoring students"
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = (
+            'username', 'email', 'first_name', 'last_name',
+            'current_job_title', 'current_company', 'industry',
+            'years_of_experience', 'skills', 'mentorship_availability',
+            'password1', 'password2'
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -249,7 +270,14 @@ class AlumniRegistrationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.user_type = 'alumni'  # Set user type as alumni
+        user.current_job_title = self.cleaned_data['current_job_title']
+        user.current_company = self.cleaned_data['current_company']
+        user.industry = self.cleaned_data['industry']
+        user.years_of_experience = self.cleaned_data['years_of_experience']
+        user.skills = self.cleaned_data['skills']
+        user.mentorship_availability = self.cleaned_data['mentorship_availability']
+        user.user_type = 'alumni'
+        
         if commit:
             user.save()
         return user

@@ -45,7 +45,7 @@
         <div class="h-[calc(100vh-13rem)] md:h-[60vh] overflow-y-auto px-4 md:px-6 py-4 bg-slate-800/30 scrollbar-themed" 
              id="messages-container">
             <!-- Message bubbles with responsive sizing -->
-            {% for message in conversation.messages.all %}
+            {% for message in messages %}
                 <div class="mb-4 {% if message.sender == request.user %}ml-auto{% endif %} max-w-[85%] md:max-w-[75%]" 
                      data-message-id="{{ message.id }}">
                     <!-- Message content -->
@@ -101,30 +101,34 @@
 <script>
     const messagesContainer = document.getElementById('messages-container');
     const conversationId = {{ conversation.id }};
+    let lastMessageId = Math.max(...Array.from(document.querySelectorAll('[data-message-id]')).map(el => parseInt(el.dataset.messageId, 10)), 0);
     const currentUser = {{ request.user.id }};
-    let lastMessageId = document.querySelector('[data-message-id]')?.dataset.messageId || '0';
-
-    // Scroll to bottom initially
+    
+    // Scroll to bottom of messages container initially
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // Form submission
+    // Function to format time in local timezone
+    function formatTime(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    // Handle form submission
     document.getElementById('message-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
-        const content = formData.get('content');
 
-        if (!content.trim()) return;
-
-        fetch(`/messaging/send-message-ajax/${conversationId}/`, {
+        fetch(window.location.href, {
             method: 'POST',
+            body: formData,
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-            },
-            body: JSON.stringify({
-                content: content
-            })
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -153,7 +157,7 @@
                 </div>
                 <div class="flex items-center mt-1 ${isCurrentUser ? 'justify-end' : ''} space-x-2">
                     <span class="text-xs text-slate-400">
-                        ${new Date(message.created_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}
+                        ${formatTime(message.created_at)}
                     </span>
                     ${!isCurrentUser ? `
                         <button onclick="window.location.href='/messaging/report/${message.id}/'"
