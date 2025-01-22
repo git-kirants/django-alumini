@@ -71,38 +71,49 @@
                 </div>
             </div>
 
-            <div class="flex space-x-2">
+            <div class="mt-6 space-y-3">
                 {% if user.is_authenticated %}
-                    {% if fund.is_active %}
-                        <a href="{% url 'make_donation' fund.id %}" 
-                           class="flex-1 text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                            Donate
-                        </a>
+                    {% if user.is_staff %}
+                        <div class="grid grid-cols-2 gap-2">
+                            <a href="{% url 'fund_donations' fund.id %}" 
+                               class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-xl transition-all duration-200">
+                                <i class="fas fa-list-ul"></i>
+                                <span>View Donations</span>
+                            </a>
+                            <a href="{% url 'fund_edit' fund.id %}" 
+                               class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-xl transition-all duration-200">
+                                <i class="fas fa-edit"></i>
+                                <span>Edit</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="grid {% if user.user_type == 'student' %}grid-cols-2{% else %}grid-cols-1{% endif %} gap-2">
                         {% if user.user_type == 'student' %}
                             <a href="{% url 'apply_scholarship' fund.id %}" 
-                               class="flex-1 text-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                                Apply
+                               class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white text-sm rounded-xl 
+                                      hover:from-blue-700 hover:to-emerald-700 transition-all duration-200">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Apply Now</span>
                             </a>
                         {% endif %}
-                    {% else %}
-                        <span class="flex-1 text-center bg-gray-300 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed">
-                            Target Reached
-                        </span>
-                    {% endif %}
+                        <a href="{% url 'make_donation' fund.id %}" 
+                           class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-xl transition-all duration-200">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Donate</span>
+                        </a>
+                    </div>
                 {% else %}
-                    <a href="{% url 'login' %}?next={{ request.path }}" 
-                       class="flex-1 text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        Login to Donate
+                    <a href="{% url 'users:login' %}?next={{ request.path }}" 
+                       class="block w-full text-center px-4 py-2 bg-gradient-to-r from-blue-600 to-emerald-600 text-white text-sm rounded-xl 
+                              hover:from-blue-700 hover:to-emerald-700 transition-all duration-200">
+                        <span>Login to Donate</span>
                     </a>
                 {% endif %}
             </div>
 
             {% if user.is_staff %}
                 <div class="border-t mt-4 pt-4 flex space-x-2">
-                    <a href="{% url 'fund_edit' fund.id %}" 
-                       class="flex-1 text-center bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm">
-                        <i class="fas fa-edit mr-1"></i>Edit
-                    </a>
                     <form method="post" action="{% url 'fund_toggle_status' fund.id %}" class="flex-1">
                         {% csrf_token %}
                         <button type="submit" 

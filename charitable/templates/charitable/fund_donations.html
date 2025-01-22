@@ -1,0 +1,122 @@
+{% extends "charitable/_wrapper.html" %}
+{% block title %}{{ fund.title }} - Donations{% endblock %}
+
+{% block charitable_content %}
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">{{ fund.title }} - Donations</h1>
+            <p class="mt-2 text-slate-400">View all donations made to this fund</p>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="mt-4 md:mt-0">
+            <a href="{% url 'fund_detail' fund.id %}" 
+               class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Fund</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Total Donations -->
+    <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600/20 to-emerald-600/20">
+                <i class="fas fa-dollar-sign text-xl text-white/60"></i>
+            </div>
+            <div>
+                <p class="text-sm text-slate-400">Total Amount</p>
+                <p class="text-2xl font-bold text-white">${{ total_amount|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Donors -->
+    <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-600/20 to-pink-600/20">
+                <i class="fas fa-users text-xl text-white/60"></i>
+            </div>
+            <div>
+                <p class="text-sm text-slate-400">Total Donors</p>
+                <p class="text-2xl font-bold text-white">{{ total_donors }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress -->
+    <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-amber-600/20 to-orange-600/20">
+                <i class="fas fa-chart-line text-xl text-white/60"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm text-slate-400">Progress</p>
+                <div class="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-blue-600 to-emerald-600" 
+                         style="width: {% widthratio fund.current_amount fund.target_amount 100 %}%"></div>
+                </div>
+                <p class="mt-1 text-sm text-slate-400">{% widthratio fund.current_amount fund.target_amount 100 %}% of ${{ fund.target_amount|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donations List -->
+<div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden">
+    <div class="p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">All Donations</h2>
+        
+        {% if donations %}
+            <div class="space-y-4">
+                {% for donation in donations %}
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                        <div class="flex items-center space-x-4">
+                            <!-- Donor Avatar/Initials -->
+                            <div class="w-10 h-10 rounded-xl overflow-hidden">
+                                {% if donation.donor.profile_picture %}
+                                    <img src="{{ donation.donor.profile_picture.url }}" 
+                                         alt="{{ donation.donor.get_full_name }}" 
+                                         class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-emerald-600">
+                                        <span class="text-white text-sm font-semibold">
+                                            {{ donation.donor.get_full_name|make_list|slice:":2"|join:"" }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Donor Info -->
+                            <div>
+                                <p class="font-medium text-white">{{ donation.donor.get_full_name }}</p>
+                                <p class="text-sm text-slate-400">{{ donation.donation_date|date:"M j, Y" }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Amount -->
+                        <div class="text-right">
+                            <p class="text-lg font-semibold text-white">${{ donation.amount|floatformat:2 }}</p>
+                            {% if donation.message %}
+                                <p class="text-sm text-slate-400">{{ donation.message }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600/20 to-emerald-600/20">
+                    <i class="fas fa-hand-holding-heart text-2xl text-white/60"></i>
+                </div>
+                <h3 class="text-lg font-medium text-white mb-2">No Donations Yet</h3>
+                <p class="text-slate-400">This fund hasn't received any donations yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -128,6 +128,24 @@ def review_application(request, application_id):
         'application': application
     })
 
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def fund_donations(request, fund_id):
+    fund = get_object_or_404(Fund, id=fund_id)
+    donations = Donation.objects.filter(fund=fund).order_by('-donation_date')
+    
+    # Calculate statistics
+    total_donors = donations.values('donor').distinct().count()
+    total_amount = donations.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    context = {
+        'fund': fund,
+        'donations': donations,
+        'total_donors': total_donors,
+        'total_amount': total_amount
+    }
+    return render(request, 'charitable/fund_donations.html', context)
+
 def fund_detail(request, fund_id):
     fund = get_object_or_404(Fund, id=fund_id)
     context = {
