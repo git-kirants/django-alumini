@@ -1,5 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
+{% load static %}
 {% block title %}{{ story.title }}{% endblock %}
+
+{% block head %}
+<head>
+    <script src="{% static 'js/story_detail.js' %}"></script>
+</head>
+{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
@@ -116,33 +124,4 @@
         </div>
     </div>
 </div>
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const showMoreBtn = document.getElementById('show-more-comments');
-    const remainingComments = document.getElementById('remaining-comments');
-    const showMoreContainer = document.getElementById('show-more-container');
-
-    if (showMoreBtn) {
-        showMoreBtn.addEventListener('click', function() {
-            if (remainingComments) {
-                // Get all comments from the hidden container
-                const comments = remainingComments.innerHTML;
-                
-                // Insert the comments before the "Show More" button container
-                const commentsContainer = document.getElementById('comments-container');
-                commentsContainer.insertAdjacentHTML('beforeend', comments);
-                
-                // Remove the "Show More" button container
-                showMoreContainer.remove();
-                
-                // Remove the hidden comments container
-                remainingComments.remove();
-            }
-        });
-    }
-});
-</script>
-{% endblock %}
 {% endblock %}

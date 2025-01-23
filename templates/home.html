@@ -1,5 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Welcome to Alumni Network{% endblock %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Alumni Network</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
 
 {% block content %}
 <!-- Full Page Background with Gradient and Effects -->
@@ -152,60 +160,4 @@
     </div>
     {% endif %}
 </div>
-
-<style>
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0px); }
-    }
-
-    @media (min-width: 768px) {
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-    }
-
-    .animate-float {
-        animation: float 6s ease-in-out infinite;
-    }
-
-    .bg-grid-slate-800 {
-        background-image: linear-gradient(to right, rgb(30 41 59 / 0.1) 1px, transparent 1px),
-                         linear-gradient(to bottom, rgb(30 41 59 / 0.1) 1px, transparent 1px);
-    }
-
-    @keyframes fade-in-up {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-fade-in-up {
-        animation: fade-in-up 1s ease-out;
-    }
-
-    /* Mobile Optimizations */
-    @media (max-width: 768px) {
-        .min-h-screen {
-            min-height: calc(100vh - 60px); /* Adjust for mobile header */
-        }
-        
-        /* Improve touch targets */
-        a, button {
-            min-height: 44px;
-            min-width: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-    }
-</style>
-{% endblock %} 
+{% endblock %}

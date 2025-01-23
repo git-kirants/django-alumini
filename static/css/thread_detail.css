@@ -1,0 +1,19 @@
+/* Custom Scrollbar Styles */
+/* Style for the replies container */
+#repliesContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #2563eb #1e293b;
+}
+
+#repliesContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#repliesContainer::-webkit-scrollbar-thumb {
+    background-color: #2563eb;
+    border-radius: 10px;
+}
+
+#repliesContainer::-webkit-scrollbar-track {
+    background: #1e293b;
+}

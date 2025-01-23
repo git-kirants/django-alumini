@@ -1,3 +1,4 @@
+{% load static %}
 {% load user_tags %}
 {% load notification_tags %}
 {% load message_tags %}
@@ -8,28 +9,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alumni Network - {% block title %}{% endblock %}</title>
-    
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <!-- Tailwind CLI (Replace CDN with CLI in production) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        .profile-initials {
-            @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-emerald-600 text-white font-semibold text-lg;
-        }
-
-        .bg-grid-slate-800 {
-            background-image: linear-gradient(to right, rgb(30 41 59 / 0.1) 1px, transparent 1px),
-                             linear-gradient(to bottom, rgb(30 41 59 / 0.1) 1px, transparent 1px);
-        }
-
-        [x-cloak] { display: none !important; }
-    </style>
+    <script src="{% static 'js/sidebar.js' %}"></script>
 </head>
 <body class="font-[Inter] bg-slate-900">
     <div class="min-h-screen flex flex-col md:flex-row">
@@ -251,30 +238,5 @@
 
     <!-- Alpine.js for Dropdowns -->
     <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-
-    <!-- Custom JavaScript -->
-    <script>
-        // Mobile sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        const openSidebarButton = document.getElementById('openSidebar');
-        const closeSidebarButton = document.getElementById('closeSidebar');
-
-        openSidebarButton.addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
-        });
-
-        closeSidebarButton.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-        });
-
-        // Close sidebar on mobile when clicking outside
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && 
-                !sidebar.contains(e.target) && 
-                !openSidebarButton.contains(e.target)) {
-                sidebar.classList.add('-translate-x-full');
-            }
-        });
-    </script>
 </body>
 </html>

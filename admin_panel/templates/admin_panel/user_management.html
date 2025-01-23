@@ -1,5 +1,7 @@
 {% extends 'admin_panel/base_admin.html' %}
 
+{% load static %}
+
 {% block admin_content %}
 <div class="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-6">
     <div class="flex justify-between items-center mb-6">
@@ -111,57 +113,10 @@
     </div>
 </div>
 
-<script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+{% endblock %}
 
-function toggleUserStatus(userId, setActive) {
-    if (!confirm(`Are you sure you want to ${setActive ? 'activate' : 'deactivate'} this user?`)) {
-        return;
-    }
-
-    fetch(`/admin-panel/users/${userId}/toggle-status/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            is_active: setActive
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.message || 'Network response was not ok');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message || 'User status updated successfully.');
-            window.location.reload();
-        } else {
-            throw new Error(data.message || 'Failed to update user status.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(error.message || 'Failed to update user status. Please try again.');
-    });
-}
-</script>
-{% endblock %} 
+{% block head %}
+<head>
+    <script src="{% static 'js/user_management.js' %}"></script>
+</head>
+{% endblock %}

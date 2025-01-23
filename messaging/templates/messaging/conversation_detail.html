@@ -1,9 +1,16 @@
 {% extends "base.html" %}
+{% load static %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block title %}Chat with {{ conversation.get_other_participant.get_full_name }}{% endblock %}
 
 {% block content %}
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/conversation_detail.css' %}">
+    <script src="{% static 'js/conversation_detail.js' %}"></script>
+</head>
 <div class="relative w-full mx-auto max-w-3xl">
     <!-- Chat Container -->
     <div class="bg-slate-800/80 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden h-[calc(100vh-2rem)]">
@@ -42,8 +49,10 @@
         </div>
 
         <!-- Messages Container - Adjusted height for mobile -->
-        <div class="h-[calc(100vh-13rem)] md:h-[60vh] overflow-y-auto px-4 md:px-6 py-4 bg-slate-800/30 scrollbar-themed" 
-             id="messages-container">
+        <div id="messages-container" 
+             class="h-[calc(100vh-13rem)] md:h-[60vh] overflow-y-auto px-4 md:px-6 py-4 bg-slate-800/30 scrollbar-themed"
+             data-conversation-id="{{ conversation.id }}"
+             data-last-message-id="{% if conversation.messages.last %}{{ conversation.messages.last.id }}{% else %}0{% endif %}">
             <!-- Message bubbles with responsive sizing -->
             {% for message in messages %}
                 <div class="mb-4 {% if message.sender == request.user %}ml-auto{% endif %} max-w-[85%] md:max-w-[75%]" 
@@ -97,149 +106,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    const messagesContainer = document.getElementById('messages-container');
-    const conversationId = {{ conversation.id }};
-    let lastMessageId = Math.max(...Array.from(document.querySelectorAll('[data-message-id]')).map(el => parseInt(el.dataset.messageId, 10)), 0);
-    const currentUser = {{ request.user.id }};
-    
-    // Scroll to bottom of messages container initially
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // Function to format time in local timezone
-    function formatTime(isoString) {
-        const date = new Date(isoString);
-        return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-    }
-
-    // Handle form submission
-    document.getElementById('message-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        const formData = new FormData(form);
-
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                appendMessage(data.message);
-                form.reset();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
-    // Append new message
-    function appendMessage(message) {
-        if (message.id <= lastMessageId) return;
-        
-        lastMessageId = message.id;
-        const isCurrentUser = message.sender_id === currentUser;
-        
-        const messageHtml = `
-            <div class="mb-4 ${isCurrentUser ? 'ml-auto' : ''} max-w-[75%]" data-message-id="${message.id}">
-                <div class="${isCurrentUser ? 
-                           'bg-blue-600/90' : 
-                           'bg-slate-700/90'} 
-                           backdrop-blur-md rounded-xl px-4 py-2 shadow-lg text-white">
-                    ${message.content}
-                </div>
-                <div class="flex items-center mt-1 ${isCurrentUser ? 'justify-end' : ''} space-x-2">
-                    <span class="text-xs text-slate-400">
-                        ${formatTime(message.created_at)}
-                    </span>
-                    ${!isCurrentUser ? `
-                        <button onclick="window.location.href='/messaging/report/${message.id}/'"
-                                class="text-xs text-slate-400 hover:text-red-400 transition-colors duration-200">
-                            <i class="fas fa-flag"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    // Poll for new messages
-    function pollNewMessages() {
-        fetch(`/messaging/api/messages/${conversationId}/?after=${lastMessageId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    data.messages.forEach(message => appendMessage(message));
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    // Start polling
-    setInterval(pollNewMessages, 3000);
-</script>
-
-<style>
-    /* Themed Scrollbar */
-    .scrollbar-themed {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    }
-
-    .scrollbar-themed::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .scrollbar-themed::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .scrollbar-themed::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-    }
-
-    .scrollbar-themed::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Mobile Optimizations */
-    @media (max-width: 768px) {
-        /* Improve touch targets */
-        button, 
-        a {
-            min-height: 44px;
-            min-width: 44px;
-        }
-
-        /* Prevent rubber-banding on iOS */
-        .scrollbar-themed {
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-        }
-
-        /* Optimize text sizes */
-        .text-sm {
-            font-size: 0.875rem;
-        }
-
-        /* Prevent zoom on input focus for iOS */
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        textarea {
-            font-size: 16px;
-        }
-    }
-</style>
 {% endblock %}

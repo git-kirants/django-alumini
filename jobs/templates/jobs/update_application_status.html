@@ -1,103 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block title %}Update Application Status{% endblock %}
 
 {% block extra_head %}
-<style>
-    /* Dark theme form styles */
-    .form-control {
-        @apply bg-white/5 border-white/10 text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500;
-    }
-    
-    /* Custom select styling */
-    .form-select,
-    select.form-control {
-        @apply h-12 bg-white/5 border-white/10 text-white appearance-none cursor-pointer pr-10;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.75rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-    }
-
-    /* Style dropdown options */
-    select.form-control option {
-        @apply bg-slate-700 text-white px-4 py-3;
-        margin: 4px 0;
-    }
-
-    /* Hover state for options */
-    select.form-control option:hover,
-    select.form-control option:focus {
-        @apply bg-slate-600;
-    }
-
-    /* Wrapper for select to add custom arrow */
-    .select-wrapper {
-        @apply relative;
-    }
-
-    .select-wrapper::after {
-        content: '';
-        @apply absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: contain;
-    }
-
-    .control-label {
-        @apply text-slate-400 !important;
-    }
-
-    .form-text {
-        @apply text-slate-400 !important;
-    }
-
-    /* Status colors in dropdown with background */
-    select.form-control option[value="pending"] { 
-        @apply text-yellow-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="reviewing"] { 
-        @apply text-blue-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="shortlisted"] { 
-        @apply text-purple-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="interviewed"] { 
-        @apply text-indigo-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="offered"] { 
-        @apply text-green-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="accepted"] { 
-        @apply text-emerald-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="rejected"] { 
-        @apply text-red-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-    select.form-control option[value="withdrawn"] { 
-        @apply text-slate-300 bg-slate-700/90;
-        text-shadow: 0 0 1px rgba(0,0,0,0.5);
-    }
-
-    /* Firefox specific styles */
-    @-moz-document url-prefix() {
-        select.form-control {
-            @apply bg-slate-700 text-white;
-        }
-        select.form-control option {
-            @apply bg-slate-700;
-        }
-    }
-</style>
+<head>
+    <link rel="stylesheet" href="{% static 'css/update_application_status.css' %}">
+</head>
 {% endblock %}
 
 {% block content %}

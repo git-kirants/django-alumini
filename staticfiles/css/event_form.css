@@ -1,0 +1,28 @@
+/* Base input styles */
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+textarea,
+select {
+    @apply w-full rounded-xl border border-slate-600 bg-slate-700 text-white placeholder-slate-400 
+           focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200 px-4 py-2;
+}
+
+/* Specific height for non-textarea inputs */
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+select {
+    @apply h-12;
+}
+
+/* Textarea specific styles */
+textarea {
+    @apply resize-none;
+}
+
+/* Checkbox styles */
+input[type="checkbox"] {
+    @apply h-5 w-5 rounded bg-slate-700 border-slate-600 text-blue-600 
+           focus:ring-blue-500 focus:ring-offset-slate-800 focus:ring-offset-2 transition-colors duration-200;
+}

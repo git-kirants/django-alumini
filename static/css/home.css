@@ -1,0 +1,4 @@
+.bg-grid-slate-800 {
+    background-image: linear-gradient(to right, rgb(30 41 59 / 0.1) 1px, transparent 1px),
+                     linear-gradient(to bottom, rgb(30 41 59 / 0.1) 1px, transparent 1px);
+}

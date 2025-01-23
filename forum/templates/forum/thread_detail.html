@@ -1,9 +1,15 @@
 {% extends "base.html" %}
+{% load static %}
+{% load static %}
 {% load user_tags %}
 
 {% block title %}{{ thread.title }}{% endblock %}
 
 {% block content %}
+<head>
+    <link rel="stylesheet" href="{% static 'css/thread_detail.css' %}">
+    <script src="{% static 'js/thread_detail.js' %}"></script>
+</head>
 <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
     <!-- Navigation -->
     <div class="mb-6">
@@ -201,66 +207,4 @@
         {% endif %}
     </div>
 </div>
-
-<!-- Custom Scrollbar Styles -->
-<style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px; /* Width of the scrollbar */
-    }
-
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1); /* Background of the scrollbar track */
-        border-radius: 10px; /* Rounded corners for the track */
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.5); /* Color of the scrollbar thumb */
-        border-radius: 10px; /* Rounded corners for the thumb */
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.8); /* Color of the thumb on hover */
-    }
-
-    @media (max-width: 768px) {
-        #repliesContainer {
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior-y: contain;
-        }
-        
-        textarea {
-            font-size: 16px; /* Prevent zoom on iOS */
-        }
-        
-        button, 
-        a {
-            min-height: 44px; /* Better touch targets */
-            min-width: 44px;
-        }
-    }
-</style>
-
-<!-- JavaScript for Toggle Functionality -->
-<script>
-function toggleReplies() {
-    const olderReplies = document.getElementById('olderReplies');
-    const viewMoreBtn = document.getElementById('viewMoreBtn');
-    const isHidden = olderReplies.classList.contains('hidden');
-    
-    if (isHidden) {
-        olderReplies.classList.remove('hidden');
-        viewMoreBtn.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>Hide Previous Replies';
-    } else {
-        olderReplies.classList.add('hidden');
-        viewMoreBtn.innerHTML = '<i class="fas fa-chevron-down mr-2"></i>View Previous Replies ({{ replies.count|add:"-1" }})';
-    }
-}
-
-// Auto-expand textarea
-document.querySelector('textarea').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-</script>
 {% endblock %} 

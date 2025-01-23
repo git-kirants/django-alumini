@@ -1,8 +1,16 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}{% if action %}{{ action }}{% else %}Create{% endif %} Event{% endblock %}
 
 {% block content %}
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/event_form.css' %}">
+    <script src="{% static 'js/event_form.js' %}"></script>
+</head>
+
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto bg-slate-800/90 rounded-xl shadow-lg p-6 border border-white/10">
         <h1 class="text-3xl font-bold text-white mb-6">{% if action %}{{ action }}{% else %}Create{% endif %} Event</h1>
@@ -69,67 +77,4 @@
         </form>
     </div>
 </div>
-
-<style>
-    /* Base input styles */
-    input[type="text"],
-    input[type="number"],
-    input[type="datetime-local"],
-    textarea,
-    select {
-        @apply w-full rounded-xl border border-slate-600 bg-slate-700 text-white placeholder-slate-400 
-               focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200 px-4 py-2;
-    }
-    
-    /* Specific height for non-textarea inputs */
-    input[type="text"],
-    input[type="number"],
-    input[type="datetime-local"],
-    select {
-        @apply h-12;
-    }
-    
-    /* Textarea specific styles */
-    textarea {
-        @apply resize-none;
-    }
-    
-    /* Checkbox styles */
-    input[type="checkbox"] {
-        @apply h-5 w-5 rounded bg-slate-700 border-slate-600 text-blue-600 
-               focus:ring-blue-500 focus:ring-offset-slate-800 focus:ring-offset-2 transition-colors duration-200;
-    }
-    
-    /* Select arrow styling */
-    select {
-        @apply appearance-none bg-no-repeat cursor-pointer;
-        background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"%3e%3cpath stroke="%23ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 8l4 4 4-4"/%3e%3c/svg%3e');
-        background-position: right 0.75rem center;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-    }
-
-    /* Style select options */
-    select option {
-        @apply bg-slate-700 text-white;
-    }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const isOnlineCheckbox = document.getElementById('id_is_online');
-    const meetingLinkDiv = document.getElementById('div_id_meeting_link');
-    
-    function toggleMeetingLink() {
-        if (meetingLinkDiv) {
-            meetingLinkDiv.style.display = isOnlineCheckbox.checked ? 'block' : 'none';
-        }
-    }
-    
-    if (isOnlineCheckbox) {
-        toggleMeetingLink(); // Initial state
-        isOnlineCheckbox.addEventListener('change', toggleMeetingLink);
-    }
-});
-</script>
 {% endblock %}

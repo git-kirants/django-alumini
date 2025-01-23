@@ -9,6 +9,7 @@ from .forms import MessageForm, MessageReportForm
 from users.models import User
 from django.views.decorators.http import require_POST, require_http_methods
 import json
+from django.utils.timezone import localtime
 
 # Create your views here.
 
@@ -39,7 +40,7 @@ def conversation_detail(request, conversation_id):
         is_read=False
     ).update(is_read=True)
     
-    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
@@ -47,25 +48,25 @@ def conversation_detail(request, conversation_id):
             message.sender = request.user
             message.save()
             
-            return JsonResponse({
-                'status': 'success',
-                'message': {
-                    'id': message.id,
-                    'content': message.content,
-                    'sender_id': message.sender.id,
-                    'created_at': message.created_at.isoformat()
-                }
-            })
-    else:
-        form = MessageForm()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': {
+                        'id': message.id,
+                        'content': message.content,
+                        'timestamp': localtime(message.created_at).strftime('%-I:%M %p'),  # Format: 9:41 PM
+                        'is_sender': True
+                    }
+                })
+            return redirect('messaging:conversation_detail', conversation_id=conversation_id)
+        elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'error': form.errors}, status=400)
     
-    # Get ordered messages
     messages = conversation.messages.all().order_by('created_at')
-    
     return render(request, 'messaging/conversation_detail.html', {
         'conversation': conversation,
         'messages': messages,
-        'form': form
+        'form': MessageForm()
     })
 
 @login_required
@@ -154,7 +155,7 @@ def send_message_ajax(request, conversation_id):
                 'id': message.id,
                 'content': message.content,
                 'sender_id': message.sender.id,
-                'created_at': message.created_at.isoformat(),
+                'created_at': localtime(message.created_at).isoformat(),
             }
         })
     except json.JSONDecodeError:
@@ -190,7 +191,7 @@ def get_messages(request, conversation_id):
             'content': message.content,
             'sender_id': message.sender.id,
             'sender_name': message.sender.get_full_name() or message.sender.username,
-            'created_at': message.created_at.isoformat(),
+            'timestamp': localtime(message.created_at).strftime('%-I:%M %p'),  # Format: 9:41 PM
             'is_sender': message.sender_id == request.user.id
         } for message in messages]
         

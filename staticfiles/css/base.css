@@ -1,0 +1,10 @@
+.profile-initials {
+    @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-emerald-600 text-white font-semibold text-lg;
+}
+
+.bg-grid-slate-800 {
+    background-image: linear-gradient(to right, rgb(30 41 59 / 0.1) 1px, transparent 1px),
+                     linear-gradient(to bottom, rgb(30 41 59 / 0.1) 1px, transparent 1px);
+}
+
+[x-cloak] { display: none !important; }
