@@ -6,8 +6,24 @@ from .models import SuccessStory, Comment
 from .forms import SuccessStoryForm, CommentForm, StoryReviewForm
 
 def story_list(request):
-    stories = SuccessStory.objects.filter(status='approved')
-    return render(request, 'success/story_list.html', {'stories': stories})
+    stories = SuccessStory.objects.all()
+    
+    # Filter stories based on the request
+    filter_type = request.GET.get('filter')
+    if filter_type == 'my_stories' and request.user.is_authenticated:
+        stories = stories.filter(author=request.user)
+    else:
+        # For all stories, only show approved ones to non-staff users
+        if not request.user.is_staff:
+            stories = stories.filter(status='approved')
+    
+    # Order by most recent first
+    stories = stories.order_by('-created_at')
+    
+    context = {
+        'stories': stories,
+    }
+    return render(request, 'success/story_list.html', context)
 
 @login_required
 def story_create(request):

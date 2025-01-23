@@ -187,8 +187,11 @@ class StudentRegistrationForm(UserCreationForm):
             field.widget.attrs.update({
                 'class': 'w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
             })
+            # Remove username help text
+            if field_name == 'username':
+                field.help_text = ''
             # Clean help text and format password requirements
-            if field.help_text:
+            elif field.help_text:
                 help_text = strip_tags(field.help_text)
                 if field_name in ['password1']:
                     # Split password requirements into bullet points
@@ -250,8 +253,11 @@ class AlumniRegistrationForm(UserCreationForm):
             field.widget.attrs.update({
                 'class': 'w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-white/30 focus:ring-4 focus:ring-white/10 transition-all duration-200'
             })
+            # Remove username help text
+            if field_name == 'username':
+                field.help_text = ''
             # Clean help text and format password requirements
-            if field.help_text:
+            elif field.help_text:
                 help_text = strip_tags(field.help_text)
                 if field_name in ['password1']:
                     # Split password requirements into bullet points

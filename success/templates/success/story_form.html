@@ -6,21 +6,21 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ action }} Success Story</h1>
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8 border border-white/10">
+            <h1 class="text-2xl font-bold text-white mb-8">{{ action }} Success Story</h1>
             
-            <form method="post" enctype="multipart/form-data" class="space-y-4">
+            <form method="post" enctype="multipart/form-data" class="space-y-6" id="storyForm">
                 {% csrf_token %}
                 
-                <div class="mb-4">
+                <div class="mb-6">
                     {{ form.title|as_crispy_field }}
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-6">
                     {{ form.content|as_crispy_field }}
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         {{ form.graduation_year|as_crispy_field }}
                     </div>
@@ -29,24 +29,46 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-6">
                     {{ form.company|as_crispy_field }}
                 </div>
 
                 <div class="mb-6">
                     {{ form.image|as_crispy_field }}
-                    {% if form.image.help_text %}
-                        <p class="text-sm text-gray-500 mt-1">{{ form.image.help_text }}</p>
+                    {% if form.instance.image %}
+                        <div class="mt-2">
+                            <img src="{{ form.instance.image.url }}" alt="Main Image" class="h-32 w-auto object-contain">
+                        </div>
                     {% endif %}
+                </div>
+
+                <div class="mb-6">
+                    {{ form.images|as_crispy_field }}
+                    <div id="imagePreviewContainer" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {% if form.instance.images.all %}
+                            {% for image in form.instance.images.all %}
+                                <div class="relative group">
+                                    <img src="{{ image.url }}" alt="Additional Image" class="w-full h-32 object-cover rounded-lg">
+                                    <button type="button" onclick="removeImage(this)" data-image-id="{{ image.id }}" 
+                                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="flex justify-end space-x-4">
                     <a href="{% url 'success:story_list' %}" 
-                       class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                       class="px-6 py-3 border border-white/20 rounded-xl text-white hover:bg-white/5 transition-all duration-200">
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg shadow-blue-600/20">
+                        <i class="fas fa-save mr-2"></i>
                         {{ action }} Story
                     </button>
                 </div>
@@ -54,4 +76,51 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+
+{% block extra_js %}
+<script>
+document.getElementById('id_images').addEventListener('change', function(e) {
+    const container = document.getElementById('imagePreviewContainer');
+    const files = e.target.files;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Image Preview" class="w-full h-32 object-cover rounded-lg">
+                    <button type="button" onclick="removeImage(this)" 
+                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+});
+
+function removeImage(button) {
+    const imageContainer = button.closest('.relative');
+    if (imageContainer) {
+        const imageId = button.dataset.imageId;
+        if (imageId) {
+            // If this is an existing image, add it to a list of images to be removed
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'remove_images';
+            input.value = imageId;
+            document.getElementById('storyForm').appendChild(input);
+        }
+        imageContainer.remove();
+    }
+}
+</script>
+{% endblock %}
+{% endblock %}
