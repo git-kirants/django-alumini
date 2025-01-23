@@ -5,30 +5,47 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Review Scholarship Application</h1>
+    <div class="max-w-3xl mx-auto bg-white/10 backdrop-blur-lg rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-200 mb-6">Review Scholarship Application</h1>
         
         <div class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-900">{{ application.fund.name }}</h2>
-            <p class="text-gray-600 mt-2">Submitted by {{ application.student.get_full_name }}</p>
+            <h2 class="text-lg font-semibold text-gray-400">{{ application.fund.name }}</h2>
+            <p class="text-gray-200 mt-2">Submitted by {{ application.student.get_full_name }}</p>
         </div>
 
         <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Academic Year</h3>
-                <p class="text-gray-800">{{ application.academic_year }}</p>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Academic Year</h3>
+                <p class="text-gray-200">{{ application.academic_year }}</p>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">GPA</h3>
-                <p class="text-gray-800">{{ application.gpa }}</p>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">GPA</h3>
+                <p class="text-gray-200">{{ application.gpa }}</p>
             </div>
             <div class="col-span-2">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Financial Need</h3>
-                <p class="text-gray-800">{{ application.financial_need }}</p>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Financial Need</h3>
+                <p class="text-gray-200">{{ application.financial_need }}</p>
             </div>
             <div class="col-span-2">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Achievements</h3>
-                <p class="text-gray-800">{{ application.achievements }}</p>
+                <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Achievements</h3>
+                <p class="text-gray-200">{{ application.achievements }}</p>
+            </div>
+            
+            <!-- Fund Information -->
+            <div class="col-span-2 bg-gray-800/50 p-4 rounded-lg">
+                <h3 class="text-sm font-semibold text-emerald-400 uppercase mb-2">Fund Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-400 text-sm">Available Amount:</p>
+                        <p class="text-emerald-400 font-semibold text-lg">₹{{ application.fund.amount_available|floatformat:2 }}</p>
+                    </div>
+                    {% if application.status == 'approved' and application.amount_awarded %}
+                    <div>
+                        <p class="text-gray-400 text-sm">Amount Awarded:</p>
+                        <p class="text-emerald-400 font-semibold text-lg">₹{{ application.amount_awarded|floatformat:2 }}</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
         
@@ -38,15 +55,15 @@
             
             <div class="flex justify-end space-x-4">
                 <a href="{% url 'review_applications' %}" 
-                   class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                   class="px-4 py-2 bg-gray-600 bg-opacity-50 text-white rounded-lg hover:bg-gray-700 transition-all duration-200">
                     Back to List
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-4 py-2 bg-blue-600 bg-opacity-50 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     Submit Review
                 </button>
             </div>
         </form>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

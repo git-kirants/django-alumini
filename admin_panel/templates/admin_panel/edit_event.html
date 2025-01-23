@@ -1,0 +1,123 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">Edit Event</h2>
+        <a href="{% url 'admin_panel:events_list' %}" 
+           class="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 text-slate-300 hover:bg-white/20 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Events
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-slate-300">Event Title</label>
+                <input type="text" name="title" id="title" value="{{ event.title }}" required
+                       class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-slate-300">Description</label>
+                <textarea name="description" id="description" rows="4" required
+                          class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ event.description }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="event_type" class="block text-sm font-medium text-slate-300">Event Type</label>
+                    <select name="event_type" id="event_type" required
+                            class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for value, label in event.EVENT_TYPES %}
+                        <option value="{{ value }}" {% if event.event_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-slate-300">Capacity</label>
+                    <input type="number" name="capacity" id="capacity" value="{{ event.capacity }}" required min="1"
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="date" class="block text-sm font-medium text-slate-300">Event Date & Time</label>
+                    <input type="datetime-local" name="date" id="date" 
+                           value="{{ event.date|date:'Y-m-d' }}T{{ event.date|date:'H:i' }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="registration_deadline" class="block text-sm font-medium text-slate-300">Registration Deadline</label>
+                    <input type="datetime-local" name="registration_deadline" id="registration_deadline" 
+                           value="{{ event.registration_deadline|date:'Y-m-d' }}T{{ event.registration_deadline|date:'H:i' }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_online" id="is_online" {% if event.is_online %}checked{% endif %}
+                           class="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-2 focus:ring-blue-500">
+                    <label for="is_online" class="ml-2 text-sm font-medium text-slate-300">Online Event</label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="location" class="block text-sm font-medium text-slate-300">
+                        {% if event.is_online %}Virtual Location{% else %}Physical Location{% endif %}
+                    </label>
+                    <input type="text" name="location" id="location" value="{{ event.location }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="meeting_link" class="block text-sm font-medium text-slate-300">Meeting Link</label>
+                    <input type="url" name="meeting_link" id="meeting_link" value="{{ event.meeting_link }}"
+                           {% if event.is_online %}required{% endif %}
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="image" class="block text-sm font-medium text-slate-300">Event Image</label>
+                {% if event.image %}
+                <div class="mt-2 mb-4">
+                    <img src="{{ event.image.url }}" alt="Event image" class="w-48 h-48 object-cover rounded-lg">
+                </div>
+                {% endif %}
+                <input type="file" name="image" id="image" accept="image/*"
+                       class="mt-1 block w-full text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-slate-300 hover:file:bg-white/20">
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" 
+                    class="inline-flex items-center px-6 py-3 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('is_online').addEventListener('change', function() {
+    const locationLabel = document.querySelector('label[for="location"]');
+    const meetingLinkInput = document.getElementById('meeting_link');
+    
+    if (this.checked) {
+        locationLabel.textContent = 'Virtual Location';
+        meetingLinkInput.required = true;
+    } else {
+        locationLabel.textContent = 'Physical Location';
+        meetingLinkInput.required = false;
+    }
+});
+</script>
+{% endblock %}

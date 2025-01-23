@@ -12,15 +12,15 @@
             <div class="flex space-x-4">
                 {% if unread_notifications_exist %}
                     <button onclick="markAllAsRead()" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-check-double mr-2"></i>
-                        Mark All as Read
+                            class="px-4 py-2 bg-blue-600 bg-opacity-50 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-check-double mr-2 block md:hidden"></i>
+                        <span class="hidden md:inline">Mark All as Read</span>
                     </button>
                 {% endif %}
                 <button onclick="clearAllNotifications()" 
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
-                    <i class="fas fa-trash-alt mr-2"></i>
-                    Clear All
+                        class="px-4 py-2 bg-red-600 bg-opacity-50 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                    <i class="fas fa-trash-alt mr-2 block md:hidden"></i>
+                    <span class="hidden md:inline">Clear All</span>
                 </button>
             </div>
         {% endif %}
@@ -44,17 +44,15 @@
                                 <div class="flex space-x-4">
                                     {% if not notification.read %}
                                         <button onclick="markAsRead({{ notification.id }})" 
-                                                class="text-blue-400 hover:text-blue-300 transition-colors duration-200" 
-                                                aria-label="Mark notification as read">
-                                            <i class="fas fa-check mr-1"></i>
-                                            Mark as read
+                                                class="text-blue-400 hover:text-blue-300 transition-colors duration-200 bg-opacity-50 bg-blue-600 rounded-lg px-2 py-1">
+                                            <i class="fas fa-check mr-1 block md:hidden"></i>
+                                            <span class="hidden md:inline">Mark as Read</span>
                                         </button>
                                     {% endif %}
                                     <button onclick="deleteNotification({{ notification.id }})" 
-                                            class="text-red-400 hover:text-red-300 transition-colors duration-200" 
-                                            aria-label="Delete notification">
-                                        <i class="fas fa-trash-alt mr-1"></i>
-                                        Delete
+                                            class="text-red-400 hover:text-red-300 transition-colors duration-200 bg-opacity-50 bg-red-600 rounded-lg px-2 py-1">
+                                        <i class="fas fa-trash-alt mr-1 block md:hidden"></i>
+                                        <span class="hidden md:inline">Delete</span>
                                     </button>
                                 </div>
                             </div>
@@ -62,16 +60,17 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="text-center py-12">
-                    <div class="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-bell-slash text-4xl text-gray-400"></i>
+                <div class="flex justify-center items-center py-12">
+                    <div class="text-center">
+                        <div class="bg-gray-700/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bell-slash text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-300 mb-2">No Notifications</h3>
+                        <p class="text-gray-400">You don't have any notifications at the moment.</p>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Notifications</h3>
-                    <p class="text-gray-400">You don't have any notifications at the moment.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
-
-{% endblock %} 
+{% endblock %}

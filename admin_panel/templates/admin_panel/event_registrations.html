@@ -1,0 +1,83 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-white">Registrations for "{{ event.title }}"</h2>
+            <p class="text-slate-400 mt-1">{{ event.get_event_type_display }} on {{ event.date|date:"M d, Y H:i" }}</p>
+        </div>
+        <a href="{% url 'admin_panel:events_list' %}" 
+           class="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 text-slate-300 hover:bg-white/20 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Events
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="col-span-1 space-y-4">
+            <div class="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
+                <h3 class="text-lg font-semibold text-white">Event Summary</h3>
+                <div class="space-y-2">
+                    <p class="text-slate-300"><strong>Location:</strong> {% if event.is_online %}Online{% else %}{{ event.location }}{% endif %}</p>
+                    <p class="text-slate-300"><strong>Capacity:</strong> {{ event.capacity }}</p>
+                    <p class="text-slate-300"><strong>Registered:</strong> {{ event.participants.count }}</p>
+                    <p class="text-slate-300"><strong>Available Spots:</strong> {{ event.available_spots }}</p>
+                    <p class="text-slate-300"><strong>Registration Deadline:</strong> {{ event.registration_deadline|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-span-2">
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white/5 border border-white/10 rounded-xl">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Participant</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Registered On</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                        {% for registration in registrations %}
+                        <tr class="hover:bg-white/5">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ registration.user.get_full_name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ registration.user.email }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ registration.registration_date|date:"M d, Y H:i" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if registration.status == 'registered' %}bg-emerald-500/20 text-emerald-300
+                                    {% elif registration.status == 'waitlisted' %}bg-yellow-500/20 text-yellow-300
+                                    {% elif registration.status == 'cancelled' %}bg-red-500/20 text-red-300
+                                    {% else %}bg-blue-500/20 text-blue-300{% endif %}">
+                                    {{ registration.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <form method="post" action="{% url 'admin_panel:update_registration_status' registration.id %}" class="inline-block">
+                                    {% csrf_token %}
+                                    <select name="status" onchange="this.form.submit()"
+                                            class="rounded-lg bg-white/5 border border-white/10 text-slate-300 px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        {% for value, label in registration.REGISTRATION_STATUS %}
+                                        <option value="{{ value }}" {% if registration.status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-slate-300">No registrations found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

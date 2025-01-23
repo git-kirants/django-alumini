@@ -1,0 +1,53 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">Delete Event</h2>
+        <a href="{% url 'admin_panel:events_list' %}" 
+           class="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 text-slate-300 hover:bg-white/20 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Events
+        </a>
+    </div>
+
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6">
+        <div class="space-y-4">
+            <div class="flex items-center justify-center">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full bg-red-500/20">
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-300"></i>
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-semibold text-white text-center">Confirm Deletion</h3>
+            
+            <p class="text-slate-300 text-center">
+                Are you sure you want to delete the event "{{ event.title }}"?<br>
+                This action cannot be undone and will remove all associated registrations.
+            </p>
+        </div>
+
+        <div class="border border-white/10 rounded-lg p-4 space-y-2">
+            <p class="text-sm text-slate-400">Event Details:</p>
+            <p class="text-slate-300"><strong>Title:</strong> {{ event.title }}</p>
+            <p class="text-slate-300"><strong>Type:</strong> {{ event.get_event_type_display }}</p>
+            <p class="text-slate-300"><strong>Date:</strong> {{ event.date|date:"M d, Y H:i" }}</p>
+            <p class="text-slate-300"><strong>Location:</strong> {% if event.is_online %}Online{% else %}{{ event.location }}{% endif %}</p>
+            <p class="text-slate-300"><strong>Capacity:</strong> {{ event.capacity }}</p>
+            <p class="text-slate-300"><strong>Registrations:</strong> {{ event.participants.count }}</p>
+            <p class="text-slate-300"><strong>Created By:</strong> {{ event.created_by.get_full_name }}</p>
+        </div>
+
+        <form method="post" class="flex justify-center space-x-4">
+            {% csrf_token %}
+            <a href="{% url 'admin_panel:events_list' %}" 
+               class="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 text-slate-300 hover:bg-white/20 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="inline-flex items-center px-6 py-3 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors">
+                <i class="fas fa-trash-alt mr-2"></i> Delete Event
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

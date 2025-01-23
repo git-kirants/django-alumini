@@ -41,7 +41,6 @@
                                 {% endif %}
                             </div>
                         </div>
-
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-800/50 p-4 rounded-lg">
                                 <h3 class="text-sm font-semibold text-gray-300 uppercase mb-2">Academic Year</h3>
@@ -53,16 +52,16 @@
                             </div>
                         </div>
 
+                        {% if application.reviewed_date %}
+                        <div class="mt-4 text-sm text-gray-300">
+                            Reviewed on {{ application.reviewed_date|date:"F j, Y" }}
+                        </div>
+                        {% endif %}
+
                         {% if application.status == 'approved' and application.amount_awarded %}
                         <div class="mt-4 bg-green-500/20 p-4 rounded-lg">
                             <h3 class="text-sm font-semibold text-green-300 uppercase mb-2">Amount Awarded</h3>
                             <p class="text-green-300 text-2xl font-bold">${{ application.amount_awarded|floatformat:2 }}</p>
-                        </div>
-                        {% endif %}
-
-                        {% if application.reviewed_date %}
-                        <div class="mt-4 text-sm text-gray-300">
-                            Reviewed on {{ application.reviewed_date|date:"F j, Y" }}
                         </div>
                         {% endif %}
 

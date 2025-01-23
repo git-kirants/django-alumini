@@ -10,6 +10,7 @@ from events.models import Event, EventRegistration
 from charitable.models import Donation, Fund
 from jobs.models import JobPosting, JobApplication
 from forum.models import Thread, Reply
+from success.models import SuccessStory
 from .models import AdminReport, SystemMetric, Report
 from .utils import (
     generate_pdf_report,
@@ -240,3 +241,147 @@ def toggle_user_status(request, user_id):
             'status': 'error',
             'message': str(e)
         }, status=500)
+
+@staff_member_required
+def success_stories(request):
+    stories = SuccessStory.objects.all().order_by('-created_at')
+    paginator = Paginator(stories, 10)  # Show 10 stories per page
+    page = request.GET.get('page')
+    stories = paginator.get_page(page)
+    return render(request, 'admin_panel/success_stories.html', {'stories': stories})
+
+@staff_member_required
+def edit_story(request, story_id):
+    story = get_object_or_404(SuccessStory, id=story_id)
+    if request.method == 'POST':
+        story.title = request.POST.get('title')
+        story.content = request.POST.get('content')
+        story.graduation_year = request.POST.get('graduation_year')
+        story.current_position = request.POST.get('current_position')
+        story.company = request.POST.get('company')
+        story.status = request.POST.get('status')
+        if request.FILES.get('image'):
+            story.image = request.FILES['image']
+        story.reviewed_by = request.user
+        story.reviewed_at = timezone.now()
+        story.save()
+        messages.success(request, 'Success story updated successfully.')
+        return redirect('admin_panel:success_stories')
+    return render(request, 'admin_panel/edit_story.html', {'story': story})
+
+@staff_member_required
+def delete_story(request, story_id):
+    story = get_object_or_404(SuccessStory, id=story_id)
+    if request.method == 'POST':
+        story.delete()
+        messages.success(request, 'Success story deleted successfully.')
+        return redirect('admin_panel:success_stories')
+    return render(request, 'admin_panel/delete_story.html', {'story': story})
+
+@staff_member_required
+def job_postings(request):
+    jobs = JobPosting.objects.all().order_by('-created_at')
+    paginator = Paginator(jobs, 10)  # Show 10 jobs per page
+    page = request.GET.get('page')
+    jobs = paginator.get_page(page)
+    return render(request, 'admin_panel/job_postings.html', {'jobs': jobs})
+
+@staff_member_required
+def edit_job(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+    if request.method == 'POST':
+        job.title = request.POST.get('title')
+        job.company = request.POST.get('company')
+        job.location = request.POST.get('location')
+        job.job_type = request.POST.get('job_type')
+        job.description = request.POST.get('description')
+        job.requirements = request.POST.get('requirements')
+        job.benefits = request.POST.get('benefits')
+        job.experience_level = request.POST.get('experience_level')
+        job.salary_range = request.POST.get('salary_range')
+        job.deadline = request.POST.get('deadline')
+        job.is_active = request.POST.get('is_active') == 'on'
+        job.remote_work = request.POST.get('remote_work') == 'on'
+        if request.FILES.get('company_logo'):
+            job.company_logo = request.FILES['company_logo']
+        job.save()
+        messages.success(request, 'Job posting updated successfully.')
+        return redirect('admin_panel:job_postings')
+    return render(request, 'admin_panel/edit_job.html', {'job': job})
+
+@staff_member_required
+def delete_job(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+    if request.method == 'POST':
+        job.delete()
+        messages.success(request, 'Job posting deleted successfully.')
+        return redirect('admin_panel:job_postings')
+    return render(request, 'admin_panel/delete_job.html', {'job': job})
+
+@staff_member_required
+def view_job_applications(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+    applications = job.applications.all().order_by('-created_at')
+    return render(request, 'admin_panel/job_applications.html', {
+        'job': job,
+        'applications': applications
+    })
+
+@staff_member_required
+def events_list(request):
+    events = Event.objects.all().order_by('-date')
+    paginator = Paginator(events, 10)  # Show 10 events per page
+    page = request.GET.get('page')
+    events = paginator.get_page(page)
+    return render(request, 'admin_panel/events_list.html', {'events': events})
+
+@staff_member_required
+def edit_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == 'POST':
+        event.title = request.POST.get('title')
+        event.description = request.POST.get('description')
+        event.event_type = request.POST.get('event_type')
+        event.date = request.POST.get('date')
+        event.location = request.POST.get('location')
+        event.capacity = request.POST.get('capacity')
+        event.registration_deadline = request.POST.get('registration_deadline')
+        event.is_online = request.POST.get('is_online') == 'on'
+        event.meeting_link = request.POST.get('meeting_link')
+        if request.FILES.get('image'):
+            event.image = request.FILES['image']
+        event.save()
+        messages.success(request, 'Event updated successfully.')
+        return redirect('admin_panel:events_list')
+    return render(request, 'admin_panel/edit_event.html', {'event': event})
+
+@staff_member_required
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if request.method == 'POST':
+        event.delete()
+        messages.success(request, 'Event deleted successfully.')
+        return redirect('admin_panel:events_list')
+    return render(request, 'admin_panel/delete_event.html', {'event': event})
+
+@staff_member_required
+def view_event_registrations(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    registrations = event.eventregistration_set.all().order_by('-registration_date')
+    return render(request, 'admin_panel/event_registrations.html', {
+        'event': event,
+        'registrations': registrations
+    })
+
+@staff_member_required
+def update_registration_status(request, registration_id):
+    registration = get_object_or_404(EventRegistration, id=registration_id)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(EventRegistration.REGISTRATION_STATUS):
+            registration.status = new_status
+            registration.save()
+            messages.success(request, f'Registration status updated to {registration.get_status_display()}.')
+        else:
+            messages.error(request, 'Invalid status provided.')
+    return redirect('admin_panel:view_event_registrations', event_id=registration.event.id)

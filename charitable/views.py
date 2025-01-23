@@ -116,6 +116,18 @@ def review_application(request, application_id):
         form = ScholarshipReviewForm(request.POST, instance=application)
         if form.is_valid():
             application = form.save(commit=False)
+            
+            # Check if application is being approved and has an amount
+            if application.status == 'approved' and application.amount_awarded:
+                fund = application.fund
+                # Check if fund has enough amount available
+                if application.amount_awarded > fund.amount_available:
+                    messages.error(request, f'Cannot award ₹{application.amount_awarded}. Fund only has ₹{fund.amount_available} available.')
+                    return render(request, 'charitable/review_application.html', {
+                        'form': form,
+                        'application': application
+                    })
+                
             application.reviewed_by = request.user
             application.reviewed_date = timezone.now()
             application.save()

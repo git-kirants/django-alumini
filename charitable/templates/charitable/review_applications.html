@@ -3,54 +3,62 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-6">Review Scholarship Applications</h1>
+    <h1 class="text-3xl font-bold text-gray-200 mb-6">Review Scholarship Applications</h1>
 
     <div class="space-y-4">
         {% for application in applications %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-white/10 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden">
             <div class="p-6">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-900">{{ application.fund.name }}</h2>
-                        <p class="text-gray-600">Applied on {{ application.applied_date|date:"F j, Y" }}</p>
+                        <h2 class="text-xl font-semibold text-white">{{ application.fund.name }}</h2>
+                        <p class="text-white">Applied on {{ application.applied_date|date:"F j, Y" }}</p>
                     </div>
-                    <a href="{% url 'review_application' application.id %}" 
-                       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <a href="{% url 'review_application' application.id %}"
+                       class="px-4 py-2 bg-blue-600 bg-opacity-50 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                         Review Application
                     </a>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Applicant</h3>
-                        <p class="text-gray-800">{{ application.student.get_full_name }}</p>
+                        <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Applicant</h3>
+                        <p class="text-white">{{ application.student.get_full_name }}</p>
                     </div>
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Academic Year</h3>
-                        <p class="text-gray-800">{{ application.academic_year }}</p>
+                        <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Academic Year</h3>
+                        <p class="text-white">{{ application.academic_year }}</p>
                     </div>
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">GPA</h3>
-                        <p class="text-gray-800">{{ application.gpa }}</p>
+                        <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">GPA</h3>
+                        <p class="text-white">{{ application.gpa }}</p>
                     </div>
                 </div>
 
                 <div class="mt-4">
-                    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Financial Need</h3>
-                    <p class="text-gray-800">{{ application.financial_need }}</p>
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Financial Need</h3>
+                    <p class="text-white">{{ application.financial_need }}</p>
                 </div>
 
                 <div class="mt-4">
-                    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Achievements</h3>
-                    <p class="text-gray-800">{{ application.achievements }}</p>
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase mb-2">Achievements</h3>
+                    <p class="text-white">{{ application.achievements }}</p>
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="text-center py-8 bg-white rounded-lg shadow">
-            <p class="text-gray-500">No pending applications to review.</p>
+        <div class="text-center py-12 bg-white/10 backdrop-blur-lg rounded-lg shadow-lg">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white">No Pending Applications</h3>
+                <p class="text-gray-400">All scholarship applications have been reviewed.</p>
+            </div>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

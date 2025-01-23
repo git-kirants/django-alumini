@@ -1,0 +1,125 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">Edit Job Posting</h2>
+        <a href="{% url 'admin_panel:job_postings' %}" 
+           class="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 text-slate-300 hover:bg-white/20 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Jobs
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-slate-300">Job Title</label>
+                <input type="text" name="title" id="title" value="{{ job.title }}" required
+                       class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="company" class="block text-sm font-medium text-slate-300">Company</label>
+                    <input type="text" name="company" id="company" value="{{ job.company }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="location" class="block text-sm font-medium text-slate-300">Location</label>
+                    <input type="text" name="location" id="location" value="{{ job.location }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="job_type" class="block text-sm font-medium text-slate-300">Job Type</label>
+                    <select name="job_type" id="job_type" required
+                            class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for value, label in job.JOB_TYPES %}
+                        <option value="{{ value }}" {% if job.job_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="experience_level" class="block text-sm font-medium text-slate-300">Experience Level</label>
+                    <select name="experience_level" id="experience_level" required
+                            class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for value, label in job.EXPERIENCE_LEVELS %}
+                        <option value="{{ value }}" {% if job.experience_level == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-slate-300">Job Description</label>
+                <textarea name="description" id="description" rows="6" required
+                          class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ job.description }}</textarea>
+            </div>
+
+            <div>
+                <label for="requirements" class="block text-sm font-medium text-slate-300">Requirements</label>
+                <textarea name="requirements" id="requirements" rows="4" required
+                          class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ job.requirements }}</textarea>
+            </div>
+
+            <div>
+                <label for="benefits" class="block text-sm font-medium text-slate-300">Benefits</label>
+                <textarea name="benefits" id="benefits" rows="4"
+                          class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ job.benefits }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="salary_range" class="block text-sm font-medium text-slate-300">Salary Range</label>
+                    <input type="text" name="salary_range" id="salary_range" value="{{ job.salary_range }}"
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="deadline" class="block text-sm font-medium text-slate-300">Application Deadline</label>
+                    <input type="date" name="deadline" id="deadline" value="{{ job.deadline|date:'Y-m-d' }}" required
+                           class="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex space-x-6">
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_active" id="is_active" {% if job.is_active %}checked{% endif %}
+                           class="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-2 focus:ring-blue-500">
+                    <label for="is_active" class="ml-2 text-sm font-medium text-slate-300">Active</label>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="remote_work" id="remote_work" {% if job.remote_work %}checked{% endif %}
+                           class="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-2 focus:ring-blue-500">
+                    <label for="remote_work" class="ml-2 text-sm font-medium text-slate-300">Remote Work Available</label>
+                </div>
+            </div>
+
+            <div>
+                <label for="company_logo" class="block text-sm font-medium text-slate-300">Company Logo</label>
+                {% if job.company_logo %}
+                <div class="mt-2 mb-4">
+                    <img src="{{ job.company_logo.url }}" alt="Company logo" class="w-48 h-48 object-contain rounded-lg bg-white/5 p-4">
+                </div>
+                {% endif %}
+                <input type="file" name="company_logo" id="company_logo" accept="image/*"
+                       class="mt-1 block w-full text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-slate-300 hover:file:bg-white/20">
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" 
+                    class="inline-flex items-center px-6 py-3 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

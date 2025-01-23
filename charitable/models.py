@@ -17,6 +17,12 @@ class Fund(models.Model):
             return 0
         return (self.current_amount / self.target_amount) * 100
 
+    @property
+    def amount_available(self):
+        awarded_amount = self.applications.filter(status='approved').aggregate(
+            total=models.Sum('amount_awarded'))['total'] or 0
+        return self.current_amount - awarded_amount
+
     def __str__(self):
         return self.name
 
