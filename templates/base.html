@@ -203,8 +203,7 @@
                                      x-transition:leave-start="transform opacity-100 scale-100"
                                      x-transition:leave-end="transform opacity-0 scale-95"
                                      class="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-xl shadow-lg py-2 border border-white/20"
-                                     x-cloak
-                                     style="display: none;">
+                                     style="display: block; z-index: 9999">
                                     <a href="{% url 'users:profile' %}" 
                                        class="flex items-center space-x-3 px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10">
                                         <i class="fas fa-user"></i>
